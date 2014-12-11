@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<task taskID="0" taskTitle="Task manager">
+    <task owner="Me" taskID="1" taskTitle="Don't working">
+        <task owner="Me" taskID="101000" taskTitle="Dinner"/>
+        <task owner="Me" taskID="101001" taskTitle="Rest"/>
+        <task owner="Me" taskID="101002" taskTitle="Work is not associated with PC"/>
+    </task>
+    <task owner="M" taskID="2" taskTitle="Program creation">
+        <task owner="M" taskID="201000" taskTitle="Model">
+            <task owner="Me" taskID="201001" taskTitle="Listeners"/>
+        </task>
+        <task owner="M" taskID="201001" taskTitle="Controller"/>
+        <task owner="M" taskID="201002" taskTitle="View"/>
+    </task>
+</task>

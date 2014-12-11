@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!ELEMENT task (task*,taskNotes?)>
+<!ATTLIST task
+ taskID PCDATA #REQUIRED
+ taskTitle CDATA #REQUIRED
+ creationDate CDATA #REQUIRED
+ deadLineDate CDATA 
+>
+<!ELEMENT taskNotes EMPTY>
+
