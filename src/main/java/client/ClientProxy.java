@@ -25,8 +25,11 @@ public class ClientProxy implements java.lang.reflect.InvocationHandler {
                 oos.writeObject(param);
         }
         dos.flush();
-        ObjectInputStream ois = new ObjectInputStream(dis);
-        Object result = ois.readObject();
+        Object result =null;
+        if(method.getReturnType()!=void.class){
+        	ObjectInputStream ois = new ObjectInputStream(dis);
+        	result = ois.readObject();
+        }
         return result;
     }     
 }

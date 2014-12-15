@@ -13,12 +13,11 @@ import java.util.List;
 import commonResources.interfaces.IVariableEssence;
 import commonResources.model.Task;
 import commonResources.model.TrackerUser;
+import commonResources.model.UserStat;
 
 public class NetClient implements INetClient {
 	private Socket socket;
-	private IVariableEssence clientElement;
-    private String userName = "Me";
-    private int role = 0;	
+	private IVariableEssence clientElement;	
     private List<Observer> observers;
     Task tasks;
     private static final NetClient INSTANCE = new NetClient();
@@ -49,11 +48,6 @@ public class NetClient implements INetClient {
 		for (Task t: task.getTask())
 			print(t);
 	}
-	
-    public static void main(String[] args) throws IOException {
-
-	        new NetClient();	
-	}
 
 	@Override
 	public void loadTasks() {
@@ -68,28 +62,20 @@ public class NetClient implements INetClient {
 	}
 
 	@Override
-	public void loadStat() {
+	public void loadStat(TrackerUser user, Date firstDate, Date lastDate) {
 		// TODO Auto-generated method stub
-		
+		clientElement.getUserStat(user.getUserName(), firstDate, lastDate);
 	}
 
 	@Override
-	public void loadStat(Date date) {
-		// TODO Auto-generated method stub
-		
+	public boolean login(String userName) {
+		boolean checkAccepted =clientElement.login(userName);
+		if(checkAccepted){
+			loadTasks();
+		}
+		return checkAccepted;
 	}
 
-	@Override
-	public void loadStat(TrackerUser user, Date firstDate, Date lastDay) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void login() {
-		clientElement.login(userName, role);
-	}
-	
 	@Override
 	public void register(Observer obj) {
 		if(obj == null) 
@@ -112,7 +98,14 @@ public class NetClient implements INetClient {
 	}
 
 	@Override
-	public void disconnect() {
-		clientElement.disconnect();
+	public void disconnect(String userName, UserStat statistic) {
+		clientElement.setUserStat(userName, statistic);
+		clientElement.disconnect(userName);
+	}
+
+	@Override
+	public void setCurrentTaskElement(int taskID) {
+		// TODO Auto-generated method stub
+		
 	}
 } 

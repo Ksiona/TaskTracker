@@ -55,12 +55,11 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 					TreeItem<Task> oldVal, TreeItem<Task> newVal) {
 				// TODO inform the controller about the selected task changes
 				try{
-				if(oldVal!=null && !newVal.getValue().getOwner().equalsIgnoreCase("Me")){
-					mainFrame.getTreeView().getSelectionModel().clearAndSelect(getRow(oldVal));
-					newVal=oldVal;
-				}
-					mainFrame.setStatisticPaneElement(newVal);
-				
+					if(oldVal!=null && !newVal.getValue().getOwner().equalsIgnoreCase(mainFrame.getUserName())){
+						getSelectionModel().clearAndSelect(getRow(oldVal));
+					}
+					else
+						mainFrame.setStatisticPaneElement(newVal);
 				}catch (NullPointerException |IndexOutOfBoundsException e){
 				}
 				

@@ -8,30 +8,42 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.apache.log4j.Logger;
+
+import commonResources.model.TrackerUser;
 
 public class WorkerThread implements Runnable{
  
+private static final String USER_CONNECTED = "Подключен пользователь: ";
+private static final String USER_DISCONNECTED = "Пользователь отключился: ";
 private Socket socket;
 private final HashMap<String, Method> methods;
 private DataInputStream is;
 private DataOutputStream ous;
-ServerThread serverThread;
-VariableEssence obj; 
+protected Collection<TrackerUser> userList;
+private VariableEssence obj; 
 private boolean isConnected;
+private Lock lock = new ReentrantLock();
+private boolean isAccepted;
+private static final Logger log = Logger.getLogger(WorkerThread.class);
      
-    public WorkerThread(Socket socket, HashMap<String, Method> methods, ServerThread serverThread){
+    public WorkerThread(Socket socket, HashMap<String, Method> methods, Collection<TrackerUser> userList){
         this.socket=socket;
         this.methods= methods;
-        this.serverThread =serverThread;
+        this.userList =userList;
         obj = new VariableEssence(this); // физический объект, чьи методы будем вызывать
     }
 
 	@Override
     public void run() {
 		try {
-			System.out.println(Thread.currentThread().getName());
+			log.info("");
 			is = new DataInputStream(socket.getInputStream());
 		   	ous = new DataOutputStream(socket.getOutputStream());
 		   	isConnected = true;
@@ -61,45 +73,35 @@ private boolean isConnected;
         		| IllegalArgumentException 
         		| InvocationTargetException 
         		| ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+        	log.error(e.getMessage(), e);
 		}
     }
 
-    public void onUserConnection(String userName, int role) {
-    	/*	serverThread.lock.lock();
-		try { 
-			serverThread.userList.add(new TrackerUser(userName, role));
-			System.out.println("\nПодключен новый пользователь: "+userName);
+    public boolean onUserConnection(String userName) {
+    	isAccepted = false;
+    	lock.lock();
+    	try { 
+			for(TrackerUser user:userList){
+				if(user.getUserName().equalsIgnoreCase(userName)){
+					isAccepted = true;
+					log.info(USER_CONNECTED+ userName);
+					break;
+				}
+			}
 		}finally {
-			serverThread.lock.unlock(); 
-		  System.out.println("unlock");
-		}*/
-	// TODO Receive task list
-}
+			lock.unlock(); 
+		}
+		return isAccepted;
+    }
 	 
 	public void onUserDisconnected(String userName) {
-		// TODO get statistic
-	/*  	lock.lock();
-			try {
-		System.out.println("\nПользователь отключился: "+ userName);
-	
-			for(TaskTrackerUser connected : userList) {
-				if(connected.getUserName().equalsIgnoreCase(userName))
-					userList.remove(connected);
-			}	
-			}finally {
-				  lock.unlock(); 
-				  System.out.println("unlock");
-				}*/
-			try {
-				isConnected = false;
-				ous.flush();
-				//socket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
+		try {
+			isConnected = false;
+			log.info(USER_DISCONNECTED + userName);
+			ous.flush();
+			//socket.close();
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		}		
 	}
 }

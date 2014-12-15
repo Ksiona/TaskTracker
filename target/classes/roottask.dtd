@@ -3,8 +3,6 @@
 <!ATTLIST task
  taskID PCDATA #REQUIRED
  taskTitle CDATA #REQUIRED
- creationDate CDATA #REQUIRED
- deadLineDate CDATA 
 >
 <!ELEMENT taskNotes EMPTY>
 

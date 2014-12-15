@@ -1,10 +1,12 @@
 package ui.mediator;
 
+import java.io.File;
 import java.util.Date;
 
 import client.NetClient;
 import commonResources.model.Task;
 import commonResources.model.TrackerUser;
+import commonResources.model.UserStat;
 import interfaces.IControllerViewMediator;
 import interfaces.INetClient;
 import interfaces.Observer;
@@ -49,37 +51,22 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	}
 
 	@Override
-	public void loadStat() {
-		// TODO Auto-generated method stub
-		
+	public void loadStat(TrackerUser user, Date firstDate, Date lastDate) {
+		nc.loadStat(user, firstDate, lastDate);
 	}
 
 	@Override
-	public void loadStat(Date date) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void loadStat(TrackerUser user, Date firstDate, Date lastDay) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void writeFileStat() {
-		// TODO Auto-generated method stub
-		
+	public void writeFileStat(File selectedDir, UserStat userStat) {
+		tp.writeFileStat(selectedDir, userStat);
 	}
 	
 	@Override
-	public void readFileStat() {
-		// TODO Auto-generated method stub
-		
+	public void readFileStat(File selectedFile) {
+		tp.readFileStat(selectedFile);
 	}
 
 	@Override
-	public void setCurrentTaskElement() {
+	public void setCurrentTaskElement(int taskID) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -108,14 +95,12 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	}
 
 	@Override
-	public void login() {
-		// TODO Auto-generated method stub
-		
+	public boolean login(String userName) {
+		return nc.login(userName);
 	}
 
 	@Override
-	public void disconnect() {
-		// TODO Auto-generated method stub
-		
+	public void disconnect(String userName, UserStat statistic) {
+		nc.disconnect(userName, statistic);
 	}
 }

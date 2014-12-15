@@ -3,8 +3,11 @@ package ui.control;
 import interfaces.IViewColleague;
 import interfaces.IViewMediator;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+
+import org.apache.log4j.Logger;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -14,20 +17,29 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import ui.mediator.ControllerViewMediator;
-
 import commonResources.model.Task;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ToolBarFX extends ToolBar implements IViewColleague{
 	
+	private static final Logger log = Logger.getLogger(ToolBarFX.class);
 	private static final String ICON_PATH = "./src/main/resources/img/icon-";
 	private static final String FILE_EXTENSION = ".png";
+	private static final String TITLE_OPEN_DIALOG = "Select file to open";
+	private static final String EXTENSION_DESCRIPTION = "Binary";
+	private static final String EXTENSION_OPEN_DIALOG = "*.bin";
+	private static final String TITLE_DIRECTORY_CHOOSER = "Select Output Directory";
+	private static final String SYSTEM_USER_DIR = "user.dir";
 	private BorderPane view;
 	private ControllerViewMediator em;
 	private IViewMediator mainFrame;
-	TreeView treeView;
+	private TreeView treeView;
 	private static final int n=8;
+
 	private Button[] buttons;
 	
 	public ToolBarFX(IViewMediator mainFrame, boolean modeState)  {
@@ -48,15 +60,39 @@ public class ToolBarFX extends ToolBar implements IViewColleague{
 			    this.getItems().add(buttons[i]);
 			}
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
-		buttons[3].setOnMouseClicked(event -> em.writeFileStat());
-		buttons[4].setOnMouseClicked(event -> em.readFileStat());
+		buttons[3].setOnMouseClicked(event -> writeFileStat());
+		buttons[4].setOnMouseClicked(event -> readFileStat());
 		buttons[5].setOnMouseClicked(event -> changeView(hideNotMine(getTreeNode().getRoot())));
 		buttons[6].setOnMouseClicked(event -> changeView(expandAll(getTreeNode().getRoot())));
 		buttons[7].setOnMouseClicked(event -> em.loadTasks());
+		
 	}
 	
+	private void readFileStat() {
+		 FileChooser fileChooser = new FileChooser();
+		 fileChooser.setTitle(TITLE_OPEN_DIALOG);
+		 fileChooser.getExtensionFilters().addAll(
+				 new ExtensionFilter(EXTENSION_DESCRIPTION, EXTENSION_OPEN_DIALOG));
+		 File selectedFile = fileChooser.showOpenDialog(mainFrame.getWindow());
+		 if (selectedFile != null) {
+			em.readFileStat(selectedFile);
+			//TODO statistic window
+		 }
+
+	}
+
+	private void writeFileStat() {
+		DirectoryChooser directoryChooser = new DirectoryChooser();
+		directoryChooser.setTitle(TITLE_DIRECTORY_CHOOSER);
+		directoryChooser.setInitialDirectory(new File(System.getProperty(SYSTEM_USER_DIR)));
+		File selectedDir = directoryChooser.showDialog(mainFrame.getWindow());
+		if (selectedDir != null) {
+			em.writeFileStat(selectedDir, mainFrame.getStatistic());
+		}
+	}
+
 	public void initManagerTools(){
 		try{
 			for (int i = 0; i < 3; i++) {
@@ -64,7 +100,7 @@ public class ToolBarFX extends ToolBar implements IViewColleague{
 			    this.getItems().add(buttons[i]);
 			}
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		buttons[0].setOnMouseClicked(event -> em.insertTaskElement());
 		buttons[1].setOnMouseClicked(event -> em.editTaskElement());
@@ -77,8 +113,7 @@ public class ToolBarFX extends ToolBar implements IViewColleague{
 		try{
 			treeView = mainFrame.getTreeView();
 		} catch (NullPointerException e){
-			// TODO log
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return treeView;
 	}

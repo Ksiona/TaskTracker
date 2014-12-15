@@ -3,6 +3,8 @@ package commonResources.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import ui.control.ProgressCellModel;
+
 public class TrackerUser implements Serializable{
 
 	/**
@@ -13,7 +15,7 @@ public class TrackerUser implements Serializable{
 	private static final int ROLE_USER = 1;
 	private String userName;
 	private int role;
-	private UserStat statistic;
+	private ProgressCellModel statistic;
 	
 	public TrackerUser(String userName, int role) {
 		this.userName = userName;
@@ -25,10 +27,10 @@ public class TrackerUser implements Serializable{
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
-	public UserStat getStatistic(Date date) {
+	public ProgressCellModel getStatistic(Date date) {
 		return statistic;
 	}
-	public void setStatistic(UserStat statistic) {
+	public void setStatistic(ProgressCellModel statistic) {
 		this.statistic = statistic;
 	}
 }

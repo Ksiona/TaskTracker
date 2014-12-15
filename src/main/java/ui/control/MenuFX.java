@@ -1,5 +1,8 @@
 package ui.control;
 
+import commonResources.model.UserStat;
+
+import ui.mediator.ControllerViewMediator;
 import interfaces.IViewColleague;
 import interfaces.IViewMediator;
 import javafx.scene.control.Menu;
@@ -7,6 +10,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.MenuItemBuilder;
 import javafx.scene.input.KeyCombination;
+import javafx.stage.Stage;
 
 public class MenuFX extends MenuBar implements IViewColleague{
 	private static final String MENU_HELP = "Help";
@@ -16,26 +20,25 @@ public class MenuFX extends MenuBar implements IViewColleague{
 	private static final String SUBMENU_ABOUT = "About Task tracker";
 	private static final String SUBMENU_CONTENT = "Help contents";
 	private static final String SUBMENU_EXPORT = "Export";
-	private static final String SUBMENU_LOAD_STAT = "Load statistic";
+	private static final String SUBMENU_LOAD_STAT = "Load server statistic";
 	private static final String SUBMENU_USER = "User";
 	private static final String SUBMENU_MANAGER = "Manager";
 	private static final String SUBMENU_EXIT = "Exit";
-	private static final String SUBMENU_LOAD_REPORT = "Load report";
 	private static final String SUPPRESS_DEPRECATION = "deprecation";
 	private IViewMediator mainFrame;
+	private ControllerViewMediator em;
 	private boolean modeState;
 	
 	public MenuFX(IViewMediator mainFrame) {
 		this.mainFrame = mainFrame;
+		em = ControllerViewMediator.getInstance();
 		initMenu();
 	}
 
 	@SuppressWarnings(SUPPRESS_DEPRECATION)
-	public void initMenu(){
-		MenuItem menu101 = MenuItemBuilder.create().text(SUBMENU_LOAD_REPORT).build();
-        menu101.setOnAction(event -> loadReport());        
-        MenuItem menu102 = MenuItemBuilder.create().text(SUBMENU_EXIT).build();
-        menu102.setOnAction(event -> systemExit()); 
+	public void initMenu(){       
+        MenuItem menu101 = MenuItemBuilder.create().text(SUBMENU_EXIT).build();
+        menu101.setOnAction(event -> systemExit()); 
         
 		MenuItem menu201 = MenuItemBuilder.create().text(SUBMENU_MANAGER).build();
         menu201.setOnAction(event -> setModeState(true));        
@@ -43,10 +46,7 @@ public class MenuFX extends MenuBar implements IViewColleague{
         menu202.setOnAction(event -> setModeState(false));        
 
         MenuItem menu301 = MenuItemBuilder.create().text(SUBMENU_LOAD_STAT).build();
-        menu301.setOnAction(event -> loadStatistic());  
-        MenuItem menu302 = MenuItemBuilder.create().text(SUBMENU_EXPORT).build();
-        menu302.setOnAction(event -> createStatFile());  
-        
+        menu301.setOnAction(event -> loadStatistic());   
         
         MenuItem menu401 = MenuItemBuilder.create().text(SUBMENU_CONTENT).accelerator(KeyCombination.keyCombination("F1")).build();
         menu401.setOnAction(event -> getHelp());        
@@ -56,46 +56,36 @@ public class MenuFX extends MenuBar implements IViewColleague{
         // Options menu
         Menu menu1 = new Menu();
         menu1.setText(MENU_FILE);
+        menu1.getItems().addAll(menu101);
         Menu menu2 = new Menu();
         menu2.setText(MENU_MODE);
         menu2.getItems().addAll(menu201,menu202);
         Menu menu3 = new Menu();
         menu3.setText(MENU_REPORTS);
-        menu3.getItems().addAll(menu301, menu302);
+        menu3.getItems().addAll(menu301);
         Menu menu4 = new Menu();
         menu4.setText(MENU_HELP);
         menu4.getItems().addAll(menu401, menu402);
         this.getMenus().addAll(menu1,menu2,menu3,menu4);
 	}
 	
-	private Object systemExit() {
-		// TODO Auto-generated method stub
-		return null;
+	private void systemExit() {
+		((Stage) mainFrame.getWindow()).close();
+	}
+	public void disconnect(String userName, UserStat statistic) {
+		em.disconnect(userName, statistic);
 	}
 
-	private Object loadReport() {
+	private void getDescription() {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
-	private Object getDescription() {
+	private void getHelp() {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
-	private Object getHelp() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private Object createStatFile() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private Object loadStatistic() {
-		// TODO Auto-generated method stub
-		return null;
+	private void loadStatistic() {
+		mainFrame.createStatStage();
 	}
 	
 	public boolean isModeState() {

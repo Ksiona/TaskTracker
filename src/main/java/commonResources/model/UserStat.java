@@ -1,55 +1,52 @@
 package commonResources.model;
 
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.scene.control.ProgressIndicator;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
+public class UserStat implements Serializable{
 
-public class UserStat  extends Task<ObservableList<UserStat>>{
-
-    private int pauseTime; // milliseconds
-	private String taskTitle;
-	private long timeStart;
-	private int percent;
-
-    public static final int NUM_ITERATIONS = 180;
-
-    public UserStat(String taskTitle, long timeStart) {
-      this.taskTitle = taskTitle;
-      this.pauseTime = 1000;
-      this.timeStart= timeStart;
-    }
-
-	public UserStat() {
-	}
-	
-	public int getPercent() {
-		return percent;
-	}
-	public void setPercent(int percent) {
-		this.percent = percent;
-	}
-	public String getTaskTitle() {
-		return taskTitle;
-	}
-	public void setTaskTitle(String taskTitle) {
-		this.taskTitle = taskTitle;
-	}
-	
 	/**
-	 * method for use with JavaFX UI only
+	 * default Id
 	 */
-	@Override
-    protected ObservableList<UserStat> call() throws Exception {
-		this.updateTitle(taskTitle);;
-		this.updateProgress(ProgressIndicator.INDETERMINATE_PROGRESS, 1);
-		for (int i = 0; i < NUM_ITERATIONS; i++) {
-        updateProgress((1.0 * i) / NUM_ITERATIONS, 1);
-        this.updateMessage((100.0 * i) / ((System.currentTimeMillis()- timeStart)/1000)+"%");
-        Thread.sleep(pauseTime);
-      }
-      this.updateProgress(1, 1);
-      
-      return null;
-    }
+	private static final long serialVersionUID = 1L;
+	private String userName;
+	private long timeInterval;
+	private Map<Integer, Long> activityTypeList;
+	
+	public UserStat(String userName) {
+		this.setUserName(userName);
+		activityTypeList = new HashMap<>();
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public long getTimeInterval(int taskID) {
+		return activityTypeList.get(taskID);
+	}
+
+	public void setTimeInterval(long timeInterval) {
+		this.timeInterval = timeInterval;
+	}
+
+	public Map<Integer, Long> getActivityTypeList() {
+		return activityTypeList;
+	}
+
+	public void setActivityTypeList(Map<Integer, Long> activityTypeList) {
+		this.activityTypeList = activityTypeList;
+	}
+	
+	public void addActivityType(int taskID, long timeInterval) {
+		if(activityTypeList.containsKey(taskID))
+			activityTypeList.replace(taskID, getTimeInterval(taskID),  getTimeInterval(taskID)+timeInterval);
+		else
+			activityTypeList.put(taskID, timeInterval);
+	}
 }

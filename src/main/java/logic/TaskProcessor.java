@@ -2,13 +2,27 @@ package logic;
 
 import interfaces.ITaskProcessor;
 import interfaces.Observer;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.log4j.Logger;
+
 import commonResources.model.Task;
+import commonResources.model.UserStat;
 
 public class TaskProcessor implements ITaskProcessor, Observer {
-	private static final String STORAGE_PATH = "./target/classes/storage/";
 
 	private static final TaskProcessor INSTANCE = new TaskProcessor();
+	private static final String FILE_EXTENSION = ".bin";
+	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+	private static final Logger log = Logger.getLogger(TaskProcessor.class);
 	private Task tasks;
+	private Task find;
 	
 	private TaskProcessor() {
 	}
@@ -36,17 +50,17 @@ public class TaskProcessor implements ITaskProcessor, Observer {
 			print(t);
 	}
 	@Override
-	public void writeFileStat() {
-		// TODO Auto-generated method stub
-		
+	public void writeFileStat(File selectedDir, UserStat userStat) {
+		String sDate = FORMAT.format(new Date(System.currentTimeMillis()));
+		try (ObjectOutputStream objectOutStream = new ObjectOutputStream(
+				new FileOutputStream(new File(selectedDir +"/" +sDate+FILE_EXTENSION)))){		
+			objectOutStream.writeObject(userStat);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		}
 	}
 	@Override
-	public void readFileStat() {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void setCurrentTaskElement() {
+	public void readFileStat(File selectedFile) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -69,5 +83,22 @@ public class TaskProcessor implements ITaskProcessor, Observer {
 	@Override
 	public void update(Task task) {
 		this.tasks = task;
+	}
+	
+
+	public Task getTreeElement(int taskID) {
+		Task task = checkID(tasks, taskID);
+		return task;
+	}
+	
+	public Task checkID(Task task, int taskID){
+		if(task.getTaskID()==taskID){
+			System.out.println(task.getTaskID());
+			find = task;
+		}
+		for (Task t: task.getTask()){
+			checkID(t, taskID);
+		}
+		return find;
 	}
 }
