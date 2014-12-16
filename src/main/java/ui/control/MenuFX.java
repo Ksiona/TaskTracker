@@ -1,7 +1,6 @@
 package ui.control;
 
 import commonResources.model.UserStat;
-
 import ui.mediator.ControllerViewMediator;
 import interfaces.IViewColleague;
 import interfaces.IViewMediator;
@@ -17,9 +16,8 @@ public class MenuFX extends MenuBar implements IViewColleague{
 	private static final String MENU_REPORTS = "Reports";
 	private static final String MENU_MODE = "Mode";
 	private static final String MENU_FILE = "File";
-	private static final String SUBMENU_ABOUT = "About Task tracker";
+	private static final String SUBMENU_ABOUT = "About ActivityType tracker";
 	private static final String SUBMENU_CONTENT = "Help contents";
-	private static final String SUBMENU_EXPORT = "Export";
 	private static final String SUBMENU_LOAD_STAT = "Load server statistic";
 	private static final String SUBMENU_USER = "User";
 	private static final String SUBMENU_MANAGER = "Manager";
@@ -85,7 +83,7 @@ public class MenuFX extends MenuBar implements IViewColleague{
 	}
 
 	private void loadStatistic() {
-		mainFrame.createStatStage();
+		mainFrame.createTabPane();
 	}
 	
 	public boolean isModeState() {

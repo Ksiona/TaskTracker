@@ -43,7 +43,6 @@ private static final Logger log = Logger.getLogger(WorkerThread.class);
 	@Override
     public void run() {
 		try {
-			log.info("");
 			is = new DataInputStream(socket.getInputStream());
 		   	ous = new DataOutputStream(socket.getOutputStream());
 		   	isConnected = true;

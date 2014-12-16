@@ -4,42 +4,42 @@ import interfaces.IViewColleague;
 import interfaces.IViewMediator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 
 import org.apache.log4j.Logger;
 
-import commonResources.model.Task;
+import commonResources.model.ActivityType;
+import commonResources.model.UserStat;
 
-public class StatPane extends TableView<ProgressCellModel> implements IViewColleague{
+public class StatPane extends TableView<ActivityTypeProgress> implements IViewColleague{
 	
 	private static final Logger log = Logger.getLogger(StatPane.class);
-	private static final String COL_TITLE = "title";
-	private static final String COL_PROGRESS = "progress";
-	private static final String COL_STATUS = "Status";
+	private static final String COL_ACTIVITY = "Activity";
+	private static final String TASK_PROPERTY_TITLE = "title";
+	private static final String COL_PROGRESS = "Progress";
+	private static final String TASK_PROPERTY_PROGRESS = "progress";
+	private static final String COL_TIME = "Time";
 	private static final String TASK_PROPERTY_VALUE = "message";
 	private static final String SUPPRESS_UNCHECKED = "unchecked";
-	private static final String LOAD = "Load report";
-	private static final String CLOSE = "Close report";
 	private IViewMediator mainFrame;
 	private List<String> statList;
-	private long timeStart;
-	private List<Thread> threadList;
+	private UserStat statistic;
+	private Map<Thread, ActivityTypeProgress> threadList;
 	
 	public StatPane(IViewMediator mainFrame) {
 		this.mainFrame = mainFrame;
 		statList = new ArrayList<>();
-		threadList = new ArrayList<>();
+		threadList = new HashMap<>();
 		init();
 	}
 
@@ -49,17 +49,17 @@ public class StatPane extends TableView<ProgressCellModel> implements IViewColle
 
 	@SuppressWarnings(SUPPRESS_UNCHECKED)
 	public void init(){
-	    TableColumn<ProgressCellModel, String> titleCol = new TableColumn<>(COL_TITLE);
-	    titleCol.setCellValueFactory(new PropertyValueFactory<ProgressCellModel, String>(COL_TITLE));
+	    TableColumn<ActivityTypeProgress, String> titleCol = new TableColumn<>(COL_ACTIVITY);
+	    titleCol.setCellValueFactory(new PropertyValueFactory<ActivityTypeProgress, String>(TASK_PROPERTY_TITLE));
 	    titleCol.setPrefWidth(150);
 
-		TableColumn<ProgressCellModel, Double> progressCol = new TableColumn<>(COL_PROGRESS);
-		progressCol.setCellValueFactory(new PropertyValueFactory<ProgressCellModel, Double>(COL_PROGRESS));
-		progressCol.setCellFactory(ProgressBarTableCell.<ProgressCellModel> forTableColumn());
+		TableColumn<ActivityTypeProgress, Double> progressCol = new TableColumn<>(COL_PROGRESS);
+		progressCol.setCellValueFactory(new PropertyValueFactory<ActivityTypeProgress, Double>(TASK_PROPERTY_PROGRESS));
+		progressCol.setCellFactory(ProgressBarTableCell.<ActivityTypeProgress> forTableColumn());
 		progressCol.setPrefWidth(300);
 	    
-	    TableColumn<ProgressCellModel, String> statusCol = new TableColumn<>(COL_STATUS);
-	    statusCol.setCellValueFactory(new PropertyValueFactory<ProgressCellModel, String>(TASK_PROPERTY_VALUE));
+	    TableColumn<ActivityTypeProgress, String> statusCol = new TableColumn<>(COL_TIME);
+	    statusCol.setCellValueFactory(new PropertyValueFactory<ActivityTypeProgress, String>(TASK_PROPERTY_VALUE));
 	    statusCol.setPrefWidth(86);
 
 	    this.getColumns().addAll(titleCol, progressCol, statusCol);
@@ -69,25 +69,9 @@ public class StatPane extends TableView<ProgressCellModel> implements IViewColle
 		// TODO Auto-generated method stub
 		
 	}
+	
 	public Node showReport(String userName) {
 		BorderPane borderPane = new BorderPane();
-		DatePicker datePicker = new DatePicker();
-
-        Button tb1 = new Button(LOAD);
-        Button tb2 = new Button(CLOSE);
-     //   tb2.setOnMouseClicked(event -> changed(null));
-
-        GridPane.setConstraints(datePicker,1,0);
-
-        GridPane.setConstraints(tb1,20,0);
-        GridPane.setConstraints(tb2,23,0);
-        GridPane grid = new GridPane();
-        grid.setVgap(20);
-        grid.setHgap(10);
-
-        grid.getChildren().addAll(datePicker,tb1, tb2);
-        borderPane.setCenter(this);
-        borderPane.setBottom(grid);
 		return borderPane;
 	}
 
@@ -96,27 +80,47 @@ public class StatPane extends TableView<ProgressCellModel> implements IViewColle
 		mainFrame.WidgetChanged(this, changes);
 	}
 
-	//TODO not finished, ask about deprecation methods
-	public void addElement(TreeItem<Task> newVal) {
+	
+	public void addElement(TreeItem<ActivityType> newVal) {
 		String title = null;
 		try{
-			title = newVal.getValue().getTaskTitle();
+			title = newVal.getValue().getActivityTypeTitle();
+
+			if(statList.isEmpty()){
+				statistic = new UserStat(mainFrame.getUserName());
+				statistic.setWorkStart(System.currentTimeMillis());
+			}
+	
+			if(!statList.contains(title)){
+				statList.add(title);
+				ActivityTypeProgress current = new ActivityTypeProgress(title);
+				this.getItems().add(current);
+				Thread thread = new Thread(current);
+				thread.setDaemon(true);
+				threadList.put(thread, current);
+				thread.start();
+				for (Thread t:threadList.keySet())
+					if(t != thread)
+						threadList.get(t).setSuspended(true);
+			}
+			else{
+				for (Thread t:threadList.keySet()){
+					ActivityTypeProgress pcm = threadList.get(t);
+					if(pcm.getActivityTypeTitle().equalsIgnoreCase(title))
+						pcm.setSuspended(false);
+					else
+						pcm.setSuspended(true);
+				}
+			}
+			for (Thread t:threadList.keySet())
+				statistic.setActivityType(newVal.getValue().getActivityTypeID(), threadList.get(t).getSecondsElapsed());
 		}catch (NullPointerException e){
 			log.warn(e.getMessage(), e);
 		}
-		if(statList.isEmpty())
-			timeStart=System.currentTimeMillis();
+	}
 
-		if(!statList.contains(title)){
-			statList.add(title);
-			ProgressCellModel current = new ProgressCellModel(title, timeStart);
-			this.getItems().add(current);
-			Thread thread = new Thread(current);
-			threadList.add(thread);
-			thread.start();
-			for (Thread t:threadList)
-				if(t != thread)
-					t.suspend();
-		}
+	public UserStat getStatistic() {
+		statistic.setWorkEnd(System.currentTimeMillis());
+		return statistic;
 	}
 }

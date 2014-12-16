@@ -14,15 +14,15 @@ public class ClientProxy implements java.lang.reflect.InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
        
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        DataInputStream dis = new DataInputStream(socket.getInputStream());
+    	DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+    	DataInputStream dis = new DataInputStream(socket.getInputStream());
 
         dos.writeUTF(method.getName());
        
         if (args != null && args.length > 0) {
-            ObjectOutputStream oos = new ObjectOutputStream(dos);
-            for (Object param : args)
-                oos.writeObject(param);
+        	ObjectOutputStream oos = new ObjectOutputStream(dos);
+        	for (Object param : args)
+        		oos.writeObject(param);
         }
         dos.flush();
         Object result =null;

@@ -4,23 +4,23 @@ import java.io.File;
 import java.util.Date;
 
 import client.NetClient;
-import commonResources.model.Task;
+import commonResources.model.ActivityType;
 import commonResources.model.TrackerUser;
 import commonResources.model.UserStat;
 import interfaces.IControllerViewMediator;
 import interfaces.INetClient;
 import interfaces.Observer;
-import logic.TaskProcessor;
+import logic.ActivityTypeProcessor;
 
 
 public class ControllerViewMediator implements IControllerViewMediator  {
 
-	private static TaskProcessor tp;
+	private static ActivityTypeProcessor tp;
 	private INetClient nc;
 	private static final ControllerViewMediator INSTANCE = new ControllerViewMediator();
 	
 	private ControllerViewMediator() {
-		tp = TaskProcessor.getInstance();
+		tp = ActivityTypeProcessor.getInstance();
 		nc = NetClient.getInstance();
 	}
 	
@@ -29,8 +29,8 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	}
 	
 	@Override
-	public void loadTasks() {
-		nc.loadTasks();
+	public void loadActivityTypes() {
+		nc.loadActivityTypes();
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	}
 
 	@Override
-	public void setTaskTree(Task task) {
+	public void setActivityTypesTree(ActivityType activityType) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -66,25 +66,25 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	}
 
 	@Override
-	public void setCurrentTaskElement(int taskID) {
+	public void setCurrentActivityElement(int activityTypeID) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void insertTaskElement() {
+	public void insertActivityTypeElement() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void editTaskElement() {
+	public void editActivityTypeElement() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void removeTaskElement() {
+	public void removeActivityTypeElement() {
 		// TODO Auto-generated method stub
 		
 	}

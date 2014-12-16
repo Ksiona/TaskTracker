@@ -11,7 +11,8 @@ public class UserStat implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private String userName;
-	private long timeInterval;
+	private long workStart;
+	private long workEnd;
 	private Map<Integer, Long> activityTypeList;
 	
 	public UserStat(String userName) {
@@ -27,12 +28,24 @@ public class UserStat implements Serializable{
 		this.userName = userName;
 	}
 
-	public long getTimeInterval(int taskID) {
-		return activityTypeList.get(taskID);
+	public long getWorkStart() {
+		return workStart;
 	}
 
-	public void setTimeInterval(long timeInterval) {
-		this.timeInterval = timeInterval;
+	public void setWorkStart(long workStart) {
+		this.workStart = workStart;
+	}
+
+	public long getWorkEnd() {
+		return workEnd;
+	}
+
+	public void setWorkEnd(long workEnd) {
+		this.workEnd = workEnd;
+	}
+
+	public long getTimeInterval(int activityTypeID) {
+		return activityTypeList.get(activityTypeID);
 	}
 
 	public Map<Integer, Long> getActivityTypeList() {
@@ -43,10 +56,17 @@ public class UserStat implements Serializable{
 		this.activityTypeList = activityTypeList;
 	}
 	
-	public void addActivityType(int taskID, long timeInterval) {
-		if(activityTypeList.containsKey(taskID))
-			activityTypeList.replace(taskID, getTimeInterval(taskID),  getTimeInterval(taskID)+timeInterval);
+	public void setActivityType(int activityTypeID, long timeInterval) {
+		if(activityTypeList.containsKey(activityTypeID))
+			activityTypeList.replace(activityTypeID, getTimeInterval(activityTypeID), timeInterval);
 		else
-			activityTypeList.put(taskID, timeInterval);
+			activityTypeList.put(activityTypeID, timeInterval);
+	}
+	
+	public void sumActivity(int activityTypeID, long timeInterval) {
+		if(activityTypeList.containsKey(activityTypeID))
+			activityTypeList.replace(activityTypeID, getTimeInterval(activityTypeID),  getTimeInterval(activityTypeID)+timeInterval);
+		else
+			activityTypeList.put(activityTypeID, timeInterval);
 	}
 }

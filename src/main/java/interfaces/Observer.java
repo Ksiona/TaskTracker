@@ -1,10 +1,10 @@
 package interfaces;
 
-import commonResources.model.Task;
+import commonResources.model.ActivityType;
 
 public interface Observer {
 	 
 	//method to update the observer, used by subject
-	void update(Task task);
+	void update(ActivityType activityType);
 
 }

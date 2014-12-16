@@ -22,15 +22,15 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.log4j.Logger;
 
 import commonResources.interfaces.IVariableEssence;
-import commonResources.model.Task;
+import commonResources.model.ActivityType;
 import commonResources.model.UserStat;
 
 public class VariableEssence implements IVariableEssence{
 	private static final String STORAGE_PATH = "./target/classes/storage/";
-	private static final String ACTIVITY_FILE_NAME = "tasks.xml";
+	private static final String ACTIVITY_FILE_NAME = "activityTypes.xml";
 	private static final Logger log = Logger.getLogger(VariableEssence.class);
 	private static final String FILE_EXTENSION = ".bin";
-	private Task tasks;
+	private ActivityType activityTypes;
 	WorkerThread workerThread;
 	private String userName;
 	private int role;
@@ -41,7 +41,7 @@ public class VariableEssence implements IVariableEssence{
 		this.workerThread = workerThread;
 		format = new SimpleDateFormat("dd.MM.yyyy");
 		try {
-			jaxbContext = JAXBContext.newInstance(Task.class);
+			jaxbContext = JAXBContext.newInstance(ActivityType.class);
 		} catch (JAXBException e) {
 			log.error(e.getMessage(), e);
 		}
@@ -49,23 +49,23 @@ public class VariableEssence implements IVariableEssence{
 	public VariableEssence(){
 	}
 	@Override
-	public Task getTaskTree() {
+	public ActivityType getActivityTypesTree() {
 		try {
 			Unmarshaller um = jaxbContext.createUnmarshaller();
-			tasks = (Task) um.unmarshal(new FileInputStream(STORAGE_PATH + ACTIVITY_FILE_NAME));
+			activityTypes = (ActivityType) um.unmarshal(new FileInputStream(STORAGE_PATH + ACTIVITY_FILE_NAME));
 		} catch (FileNotFoundException | JAXBException e) {
 			log.error(e.getMessage(), e);
 		}
-		return tasks;
+		return activityTypes;
 	}
 	
 	@Override
-	public void setTaskTree(Task task) {
+	public void setActivityTypesTree(ActivityType activityType) {
 		try {
 			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			OutputStream outStream = new FileOutputStream(STORAGE_PATH+ACTIVITY_FILE_NAME);
-			jaxbMarshaller.marshal(task, outStream);
+			jaxbMarshaller.marshal(activityType, outStream);
 			outStream.close();
 		} catch (JAXBException | IOException e) {
 			log.error(e.getMessage(), e);
@@ -114,8 +114,8 @@ public class VariableEssence implements IVariableEssence{
 	private UserStat mergeStat(String userName, List<UserStat> statList) {
 		UserStat statistic = new UserStat(userName);
 		for(UserStat us:statList)
-			for(int taskID:us.getActivityTypeList().keySet())
-				statistic.addActivityType(taskID, us.getActivityTypeList().get(taskID));
+			for(int activityTypeID:us.getActivityTypeList().keySet())
+				statistic.sumActivity(activityTypeID, us.getActivityTypeList().get(activityTypeID));
 		return statistic;
 	}
 	

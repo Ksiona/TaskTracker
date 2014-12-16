@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<activityType activityTypeID="0" activityTypeTitle="activityType manager">
+    <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="Me" activityTypeID="1" activityTypeTitle="Don't working">
+        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="Me" activityTypeID="101000" activityTypeTitle="Dinner"/>
+        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="Me" activityTypeID="101001" activityTypeTitle="Rest"/>
+        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="Me" activityTypeID="101002" activityTypeTitle="Work is not associated with PC"/>
+    </activityType>
+    <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="M" activityTypeID="2" activityTypeTitle="Program creation">
+        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="M" activityTypeID="201000" activityTypeTitle="Model">
+            <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="Me" activityTypeID="201001" activityTypeTitle="Listeners"/>
+        </activityType>
+        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="M" activityTypeID="201001" activityTypeTitle="Controller"/>
+        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="M" activityTypeID="201002" activityTypeTitle="View"/>
+    </activityType>
+</activityType>

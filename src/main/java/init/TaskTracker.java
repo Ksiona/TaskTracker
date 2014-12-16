@@ -3,7 +3,7 @@ package init;
 import java.io.IOException;
 
 import client.NetClient;
-import logic.TaskProcessor;
+import logic.ActivityTypeProcessor;
 import server.ServerThread;
 import ui.mediator.ControllerViewMediator;
 import ui.view.MainFrameFX;
@@ -27,7 +27,7 @@ public class TaskTracker {
 	
 	public void initApp(){
 		NetClient.getInstance();
-		TaskProcessor.getInstance();
+		ActivityTypeProcessor.getInstance();
 		ControllerViewMediator.getInstance();
 
 		MainFrameFX.main(new String[]{});

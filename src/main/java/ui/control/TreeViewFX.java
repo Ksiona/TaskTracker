@@ -1,6 +1,6 @@
 package ui.control;
 
-import commonResources.model.Task;
+import commonResources.model.ActivityType;
 import interfaces.IControllerViewMediator;
 import interfaces.IViewColleague;
 import interfaces.IViewMediator;
@@ -25,10 +25,10 @@ import ui.mediator.ControllerViewMediator;
 
 public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 	
-	private static final String NEW_TASK = "New task";
+	private static final String NEW_ACTIVITY_TYPE = "New activityType";
 	private IViewMediator mainFrame;
 	private IControllerViewMediator em;
-	private TreeItem<Task> treeRoot;
+	private TreeItem<ActivityType> treeRoot;
 	private boolean modeState;
 
 	public TreeViewFX(IViewMediator mainFrame, boolean mode) {
@@ -49,11 +49,11 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 	
 	public Node initUserMode(){
 		this.setShowRoot(false);
-		this.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Task>>() {
+		this.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<ActivityType>>() {
 			@Override
-			public void changed(ObservableValue<? extends TreeItem<Task>> observable,
-					TreeItem<Task> oldVal, TreeItem<Task> newVal) {
-				// TODO inform the controller about the selected task changes
+			public void changed(ObservableValue<? extends TreeItem<ActivityType>> observable,
+					TreeItem<ActivityType> oldVal, TreeItem<ActivityType> newVal) {
+				// TODO inform the controller about the selected activityType changes
 				try{
 					if(oldVal!=null && !newVal.getValue().getOwner().equalsIgnoreCase(mainFrame.getUserName())){
 						getSelectionModel().clearAndSelect(getRow(oldVal));
@@ -70,37 +70,37 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 	
 	public Node initManagerMode(){
 		this.setShowRoot(false);
-		this.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Task>>() {
+		this.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<ActivityType>>() {
 			@Override
-			public void changed(ObservableValue<? extends TreeItem<Task>> observable,
-					TreeItem<Task> oldVal, TreeItem<Task> newVal) {
+			public void changed(ObservableValue<? extends TreeItem<ActivityType>> observable,
+					TreeItem<ActivityType> oldVal, TreeItem<ActivityType> newVal) {
 						mainFrame.setStatisticPaneElement(newVal);
-						// TODO inform the controller about the selected task changes
+						// TODO inform the controller about the selected activityType changes
 			}
 		});
 		
 		this.setEditable(true);
-		this.setCellFactory(new Callback<TreeView<Task>,TreeCell<Task>>(){
+		this.setCellFactory(new Callback<TreeView<ActivityType>,TreeCell<ActivityType>>(){
 			@Override
-			public TreeCell<Task> call(TreeView<Task> p) {
+			public TreeCell<ActivityType> call(TreeView<ActivityType> p) {
 				return new TextFieldTreeCellImpl();
 			}
 		});
 		return this;
 	}
 	
-	private final class TextFieldTreeCellImpl extends TreeCell<Task> {
+	private final class TextFieldTreeCellImpl extends TreeCell<ActivityType> {
 
 		private TextField textField;
 		private ContextMenu addMenu = new ContextMenu();
 		 
 		public TextFieldTreeCellImpl() {
-			MenuItem addMenuItem = new MenuItem(NEW_TASK);
+			MenuItem addMenuItem = new MenuItem(NEW_ACTIVITY_TYPE);
 			addMenu.getItems().add(addMenuItem);
 			addMenuItem.setOnAction(new EventHandler() {
 				public void handle(Event t) {
-					TreeItem<Task> newTask = insertTask();
-					getTreeItem().getChildren().add(newTask);
+					TreeItem<ActivityType> newActivityType = insertActivityType();
+					getTreeItem().getChildren().add(newActivityType);
 				}
 			});
 		}
@@ -119,12 +119,12 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 		@Override
 		public void cancelEdit() {
 			super.cancelEdit();
-			setText(((Task) getItem()).toString());
+			setText(((ActivityType) getItem()).toString());
 			setGraphic(getTreeItem().getGraphic());
 		}
 		 
 		@Override
-		public void updateItem(Task item, boolean empty) {
+		public void updateItem(ActivityType item, boolean empty) {
 			super.updateItem(item, empty);
 			if (empty) {
 				setText(null);
@@ -150,7 +150,7 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 				@Override
 				public void handle(KeyEvent t) {
 					if (t.getCode() == KeyCode.ENTER) {
-						commitEdit(editTask(textField.getText()));
+						commitEdit(editActivityType(textField.getText()));
 					} else if (t.getCode() == KeyCode.ESCAPE) {
 						cancelEdit();
 					}
@@ -163,17 +163,17 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 		}
 	}
 	
-	private Task editTask(String text) {
-		// TODO inform the controller about the task changes
-		Task task = ((TreeItem<Task>) this.getSelectionModel().getSelectedItem()).getValue();
-		task.setTaskTitle(text);
-		return task;
+	private ActivityType editActivityType(String text) {
+		// TODO inform the controller about the activityType changes
+		ActivityType activityType = ((TreeItem<ActivityType>) this.getSelectionModel().getSelectedItem()).getValue();
+		activityType.setActivityTypeTitle(text);
+		return activityType;
 	}
 	
-	private TreeItem<Task> insertTask() {
-		// TODO inform the controller about the task changes
-		TreeItem<Task> newTask = new TreeItem<Task>(new Task(NEW_TASK, 1));
-		return newTask;
+	private TreeItem<ActivityType> insertActivityType() {
+		// TODO inform the controller about the activityType changes
+		TreeItem<ActivityType> newActivityType = new TreeItem<ActivityType>(new ActivityType(NEW_ACTIVITY_TYPE, 1));
+		return newActivityType;
 	}
 
 	@Override
@@ -181,21 +181,21 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 		mainFrame.WidgetChanged(this, changes);
 	}
 
-	public void loadTasks() {
-		em.loadTasks();
+	public void loadActivityTypes() {
+		em.loadActivityTypes();
 	}
 
-	public void buildTree(Task task, TreeItem<Task> taskRoot) {
-		TreeItem<Task> subItem = new TreeItem<Task>(task);
+	public void buildTree(ActivityType activityType, TreeItem<ActivityType> taskRoot) {
+		TreeItem<ActivityType> subItem = new TreeItem<ActivityType>(activityType);
 		taskRoot.getChildren().add(subItem);
-		for(Task t:((Task) task).getTask())
+		for(ActivityType t:((ActivityType) activityType).getActivityType())
 			buildTree(t, subItem);
 	}
 	
 	@Override
-	public void update(Task task) {
-		treeRoot = new TreeItem<Task>((Task) task);
-		for(Task t:((Task) task).getTask())
+	public void update(ActivityType activityType) {
+		treeRoot = new TreeItem<ActivityType>((ActivityType) activityType);
+		for(ActivityType t:((ActivityType) activityType).getActivityType())
 			buildTree(t, treeRoot);
 
 		this.setRoot(treeRoot);

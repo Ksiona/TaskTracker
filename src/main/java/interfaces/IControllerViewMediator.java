@@ -1,5 +1,5 @@
 package interfaces;
 
-public interface IControllerViewMediator extends ITaskProcessor, INetClient {
+public interface IControllerViewMediator extends IActivityTypeProcessor, INetClient {
 
 }
