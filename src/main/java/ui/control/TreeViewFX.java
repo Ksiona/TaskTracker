@@ -55,7 +55,7 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 					TreeItem<ActivityType> oldVal, TreeItem<ActivityType> newVal) {
 				// TODO inform the controller about the selected activityType changes
 				try{
-					if(oldVal!=null && !newVal.getValue().getOwner().equalsIgnoreCase(mainFrame.getUserName())){
+					if(!(newVal.getValue().getOwner().equalsIgnoreCase(mainFrame.getUserName())||newVal.getValue().getOwner().equalsIgnoreCase("shared"))){
 						getSelectionModel().clearAndSelect(getRow(oldVal));
 					}
 					else
@@ -193,13 +193,15 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 	}
 	
 	@Override
-	public void update(ActivityType activityType) {
-		treeRoot = new TreeItem<ActivityType>((ActivityType) activityType);
-		for(ActivityType t:((ActivityType) activityType).getActivityType())
+	public void update(Object object) {
+		if(object.getClass() == ActivityType.class){
+		treeRoot = new TreeItem<ActivityType>((ActivityType) object);
+		for(ActivityType t:((ActivityType) object).getActivityType())
 			buildTree(t, treeRoot);
 
 		this.setRoot(treeRoot);
 		treeRoot.setExpanded(true);
 		changed(this);
+		}
 	}
 }

@@ -1,8 +1,9 @@
 package commonResources.model;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserStat implements Serializable{
 
@@ -13,11 +14,11 @@ public class UserStat implements Serializable{
 	private String userName;
 	private long workStart;
 	private long workEnd;
-	private Map<Integer, Long> activityTypeList;
+	private List<ActivityTypeStat> activityStatList;
 	
 	public UserStat(String userName) {
 		this.setUserName(userName);
-		activityTypeList = new HashMap<>();
+		activityStatList = new ArrayList<>();
 	}
 
 	public String getUserName() {
@@ -42,31 +43,29 @@ public class UserStat implements Serializable{
 
 	public void setWorkEnd(long workEnd) {
 		this.workEnd = workEnd;
+		for(ActivityTypeStat asr:activityStatList){
+			double percent = (double)asr.getTimeInterval()*100/(workEnd - workStart);
+			asr.setPercent(percent);
+		}
 	}
 
-	public long getTimeInterval(int activityTypeID) {
-		return activityTypeList.get(activityTypeID);
+	public List<ActivityTypeStat> getActivityStatList() {
+		return activityStatList;
 	}
 
-	public Map<Integer, Long> getActivityTypeList() {
-		return activityTypeList;
-	}
-
-	public void setActivityTypeList(Map<Integer, Long> activityTypeList) {
-		this.activityTypeList = activityTypeList;
+	public void setActivityStatList(List<ActivityTypeStat> activityStatList) {
+		this.activityStatList = activityStatList;
 	}
 	
-	public void setActivityType(int activityTypeID, long timeInterval) {
-		if(activityTypeList.containsKey(activityTypeID))
-			activityTypeList.replace(activityTypeID, getTimeInterval(activityTypeID), timeInterval);
-		else
-			activityTypeList.put(activityTypeID, timeInterval);
-	}
-	
-	public void sumActivity(int activityTypeID, long timeInterval) {
-		if(activityTypeList.containsKey(activityTypeID))
-			activityTypeList.replace(activityTypeID, getTimeInterval(activityTypeID),  getTimeInterval(activityTypeID)+timeInterval);
-		else
-			activityTypeList.put(activityTypeID, timeInterval);
+	public void addActivity(LocalDate date, ActivityType activityType, long timeInterval){
+		boolean isFinded = false;
+		for(ActivityTypeStat asr:activityStatList){
+			if (asr.getActivityTypeTitle().equalsIgnoreCase(activityType.getActivityTypeTitle())){
+				asr.setTimeInterval(timeInterval);
+				isFinded  = true;
+			}
+		}
+		if(!isFinded)
+			activityStatList.add(new ActivityTypeStat(date, activityType, timeInterval));
 	}
 }

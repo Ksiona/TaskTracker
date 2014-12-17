@@ -1,50 +1,45 @@
 package ui.control;
 
-import interfaces.IViewColleague;
 import interfaces.IViewMediator;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javafx.scene.Node;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
 
 import org.apache.log4j.Logger;
 
+import commonResources.model.ActivityTypeStat;
 import commonResources.model.ActivityType;
 import commonResources.model.UserStat;
 
-public class StatPane extends TableView<ActivityTypeProgress> implements IViewColleague{
+public class StatTable extends TableView<ActivityTypeProgress>{
 	
-	private static final Logger log = Logger.getLogger(StatPane.class);
+	private static final Logger log = Logger.getLogger(StatTable.class);
 	private static final String COL_ACTIVITY = "Activity";
 	private static final String TASK_PROPERTY_TITLE = "title";
 	private static final String COL_PROGRESS = "Progress";
 	private static final String TASK_PROPERTY_PROGRESS = "progress";
 	private static final String COL_TIME = "Time";
-	private static final String TASK_PROPERTY_VALUE = "message";
+	private static final String TASK_PROPERTY_MESSAGE = "message";
 	private static final String SUPPRESS_UNCHECKED = "unchecked";
 	private IViewMediator mainFrame;
-	private List<String> statList;
+	private List<Integer> statList;
 	private UserStat statistic;
 	private Map<Thread, ActivityTypeProgress> threadList;
 	
-	public StatPane(IViewMediator mainFrame) {
+	public StatTable(IViewMediator mainFrame) {
 		this.mainFrame = mainFrame;
 		statList = new ArrayList<>();
 		threadList = new HashMap<>();
 		init();
-	}
-
-	public StatPane() {
-		initReport();
 	}
 
 	@SuppressWarnings(SUPPRESS_UNCHECKED)
@@ -59,68 +54,54 @@ public class StatPane extends TableView<ActivityTypeProgress> implements IViewCo
 		progressCol.setPrefWidth(300);
 	    
 	    TableColumn<ActivityTypeProgress, String> statusCol = new TableColumn<>(COL_TIME);
-	    statusCol.setCellValueFactory(new PropertyValueFactory<ActivityTypeProgress, String>(TASK_PROPERTY_VALUE));
+	    statusCol.setCellValueFactory(new PropertyValueFactory<ActivityTypeProgress, String>(TASK_PROPERTY_MESSAGE));
 	    statusCol.setPrefWidth(86);
 
 	    this.getColumns().addAll(titleCol, progressCol, statusCol);
 	}
-	
-	private void initReport() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	public Node showReport(String userName) {
-		BorderPane borderPane = new BorderPane();
-		return borderPane;
-	}
 
-	@Override
-	public void changed(Object changes) {
-		mainFrame.WidgetChanged(this, changes);
-	}
-
-	
 	public void addElement(TreeItem<ActivityType> newVal) {
-		String title = null;
+		int itemID = 0;
 		try{
-			title = newVal.getValue().getActivityTypeTitle();
+			itemID = newVal.getValue().getActivityTypeID();
 
 			if(statList.isEmpty()){
 				statistic = new UserStat(mainFrame.getUserName());
-				statistic.setWorkStart(System.currentTimeMillis());
+				statistic.setWorkStart(System.currentTimeMillis()/1000);
 			}
 	
-			if(!statList.contains(title)){
-				statList.add(title);
-				ActivityTypeProgress current = new ActivityTypeProgress(title);
+			if(!statList.contains(itemID)){
+				statList.add(itemID);
+				ActivityTypeProgress current = new ActivityTypeProgress(newVal.getValue());
 				this.getItems().add(current);
 				Thread thread = new Thread(current);
 				thread.setDaemon(true);
 				threadList.put(thread, current);
 				thread.start();
-				for (Thread t:threadList.keySet())
-					if(t != thread)
-						threadList.get(t).setSuspended(true);
 			}
-			else{
-				for (Thread t:threadList.keySet()){
-					ActivityTypeProgress pcm = threadList.get(t);
-					if(pcm.getActivityTypeTitle().equalsIgnoreCase(title))
-						pcm.setSuspended(false);
-					else
-						pcm.setSuspended(true);
-				}
+			for (Thread t:threadList.keySet()){
+				statistic.addActivity(LocalDate.now(), newVal.getValue(), threadList.get(t).getSecondsElapsed());
+				ActivityTypeProgress pcm = threadList.get(t);
+				if(pcm.getActivityTypeID() == itemID)
+					pcm.setSuspended(false);
+				else
+					pcm.setSuspended(true);
 			}
-			for (Thread t:threadList.keySet())
-				statistic.setActivityType(newVal.getValue().getActivityTypeID(), threadList.get(t).getSecondsElapsed());
 		}catch (NullPointerException e){
 			log.warn(e.getMessage(), e);
 		}
 	}
 
 	public UserStat getStatistic() {
-		statistic.setWorkEnd(System.currentTimeMillis());
+		for (Thread t:threadList.keySet()){
+			ActivityTypeProgress pcm = threadList.get(t);
+			for(ActivityTypeStat asr:statistic.getActivityStatList()){
+				if (asr.getActivityTypeID() == pcm.getActivityTypeID()){
+					asr.setTimeInterval(pcm.getSecondsElapsed());
+				}
+			}
+		}
+		statistic.setWorkEnd(System.currentTimeMillis()/1000);
 		return statistic;
 	}
 }

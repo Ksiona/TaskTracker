@@ -1,16 +1,17 @@
 package ui.mediator;
 
-import java.io.File;
-import java.util.Date;
-
-import client.NetClient;
-import commonResources.model.ActivityType;
-import commonResources.model.TrackerUser;
-import commonResources.model.UserStat;
 import interfaces.IControllerViewMediator;
 import interfaces.INetClient;
 import interfaces.Observer;
+
+import java.io.File;
+import java.time.LocalDate;
+
 import logic.ActivityTypeProcessor;
+import client.NetClient;
+
+import commonResources.model.ActivityType;
+import commonResources.model.UserStat;
 
 
 public class ControllerViewMediator implements IControllerViewMediator  {
@@ -51,8 +52,8 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	}
 
 	@Override
-	public void loadStat(TrackerUser user, Date firstDate, Date lastDate) {
-		nc.loadStat(user, firstDate, lastDate);
+	public void loadStat(String userName, LocalDate firstDate, LocalDate lastDate) {
+		nc.loadStat(userName, firstDate, lastDate);
 	}
 
 	@Override
@@ -90,7 +91,7 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	}
 
 	@Override
-	public void notifyObservers() {
+	public void notifyObservers(Object object) {
 		// Nothing to do		
 	}
 
@@ -103,4 +104,6 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	public void disconnect(String userName, UserStat statistic) {
 		nc.disconnect(userName, statistic);
 	}
+
+
 }

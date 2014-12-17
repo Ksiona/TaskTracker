@@ -16,5 +16,4 @@ public interface IViewMediator {
 	public void login();
 	public Window getWindow();
 	public UserStat getStatistic();
-	public void createTabPane();
 }

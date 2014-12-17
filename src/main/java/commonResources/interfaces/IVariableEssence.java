@@ -1,6 +1,6 @@
 package commonResources.interfaces;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import commonResources.model.ActivityType;
 import commonResources.model.UserStat;
@@ -11,5 +11,6 @@ public interface IVariableEssence {
     public ActivityType getActivityTypesTree();
     public void setActivityTypesTree(ActivityType activityType);
     public void setUserStat(String userName, UserStat statistic);
-    public UserStat getUserStat(String userName, Date start, Date end);
+    public UserStat getUserStat(String userName, LocalDate start, LocalDate end);
+	
 }

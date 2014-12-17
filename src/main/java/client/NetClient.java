@@ -6,13 +6,12 @@ import interfaces.Observer;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.net.Socket;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import commonResources.interfaces.IVariableEssence;
 import commonResources.model.ActivityType;
-import commonResources.model.TrackerUser;
 import commonResources.model.UserStat;
 
 public class NetClient implements INetClient {
@@ -20,6 +19,7 @@ public class NetClient implements INetClient {
 	private IVariableEssence clientElement;	
     private List<Observer> observers;
     ActivityType activityTypes;
+    UserStat statistic;
     private static final NetClient INSTANCE = new NetClient();
 
 	public NetClient() {
@@ -52,7 +52,7 @@ public class NetClient implements INetClient {
 	@Override
 	public void loadActivityTypes() {
 		activityTypes = clientElement.getActivityTypesTree();
-		notifyObservers();
+		notifyObservers(this.activityTypes);
 	}
 
 	@Override
@@ -61,9 +61,9 @@ public class NetClient implements INetClient {
 	}
 
 	@Override
-	public void loadStat(TrackerUser user, Date firstDate, Date lastDate) {
-		// TODO Auto-generated method stub
-		clientElement.getUserStat(user.getUserName(), firstDate, lastDate);
+	public void loadStat(String userName, LocalDate firstDate, LocalDate lastDate) {
+		statistic =	clientElement.getUserStat(userName, firstDate, lastDate);
+		notifyObservers(this.statistic);
 	}
 
 	@Override
@@ -91,9 +91,9 @@ public class NetClient implements INetClient {
 	}
 
 	@Override
-	public void notifyObservers() {
+	public void notifyObservers(Object object) {
 		for (Observer obj : observers) 
-			obj.update(this.activityTypes);
+			obj.update(object);
 	}
 
 	@Override

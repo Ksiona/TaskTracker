@@ -13,12 +13,10 @@ import javafx.stage.Stage;
 
 public class MenuFX extends MenuBar implements IViewColleague{
 	private static final String MENU_HELP = "Help";
-	private static final String MENU_REPORTS = "Reports";
 	private static final String MENU_MODE = "Mode";
 	private static final String MENU_FILE = "File";
 	private static final String SUBMENU_ABOUT = "About ActivityType tracker";
 	private static final String SUBMENU_CONTENT = "Help contents";
-	private static final String SUBMENU_LOAD_STAT = "Load server statistic";
 	private static final String SUBMENU_USER = "User";
 	private static final String SUBMENU_MANAGER = "Manager";
 	private static final String SUBMENU_EXIT = "Exit";
@@ -42,9 +40,6 @@ public class MenuFX extends MenuBar implements IViewColleague{
         menu201.setOnAction(event -> setModeState(true));        
         MenuItem menu202 = MenuItemBuilder.create().text(SUBMENU_USER).build();
         menu202.setOnAction(event -> setModeState(false));        
-
-        MenuItem menu301 = MenuItemBuilder.create().text(SUBMENU_LOAD_STAT).build();
-        menu301.setOnAction(event -> loadStatistic());   
         
         MenuItem menu401 = MenuItemBuilder.create().text(SUBMENU_CONTENT).accelerator(KeyCombination.keyCombination("F1")).build();
         menu401.setOnAction(event -> getHelp());        
@@ -59,12 +54,9 @@ public class MenuFX extends MenuBar implements IViewColleague{
         menu2.setText(MENU_MODE);
         menu2.getItems().addAll(menu201,menu202);
         Menu menu3 = new Menu();
-        menu3.setText(MENU_REPORTS);
-        menu3.getItems().addAll(menu301);
-        Menu menu4 = new Menu();
-        menu4.setText(MENU_HELP);
-        menu4.getItems().addAll(menu401, menu402);
-        this.getMenus().addAll(menu1,menu2,menu3,menu4);
+        menu3.setText(MENU_HELP);
+        menu3.getItems().addAll(menu401, menu402);
+        this.getMenus().addAll(menu1,menu2,menu3);
 	}
 	
 	private void systemExit() {
@@ -80,10 +72,6 @@ public class MenuFX extends MenuBar implements IViewColleague{
 
 	private void getHelp() {
 		// TODO Auto-generated method stub
-	}
-
-	private void loadStatistic() {
-		mainFrame.createTabPane();
 	}
 	
 	public boolean isModeState() {

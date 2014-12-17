@@ -1,5 +1,7 @@
 package ui.control;
 
+import commonResources.model.ActivityType;
+
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.ProgressIndicator;
@@ -13,11 +15,13 @@ public class ActivityTypeProgress  extends Task<ObservableList<ActivityTypeProgr
 	private static final String DESCRIPTION_SECONDS = " s";
 	private static final String DESCRIPTION_MINUTES = " min";
 	private String activityTypeTitle;
+	private int activityTypeID;
 	private int secondsElapsed;
 	private boolean isSuspended;
 	
-	public ActivityTypeProgress(String activityTypeTitle) {
-		this.setActivityTypeTitle(activityTypeTitle);
+	public ActivityTypeProgress(ActivityType activityType) {
+		this.setActivityTypeTitle(activityType.getActivityTypeTitle());
+		this.setActivityTypeID(activityType.getActivityTypeID());
 	}
 	
 	public String getActivityTypeTitle() {
@@ -26,6 +30,14 @@ public class ActivityTypeProgress  extends Task<ObservableList<ActivityTypeProgr
 	public void setActivityTypeTitle(String activityTypeTitle) {
 		this.activityTypeTitle = activityTypeTitle;
 	}
+	public int getActivityTypeID() {
+		return activityTypeID;
+	}
+
+	public void setActivityTypeID(int activityTypeID) {
+		this.activityTypeID = activityTypeID;
+	}
+
 	public boolean isSuspended() {
 		return isSuspended;
 	}

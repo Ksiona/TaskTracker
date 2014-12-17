@@ -28,7 +28,8 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import ui.control.Login;
 import ui.control.MenuFX;
-import ui.control.StatPane;
+import ui.control.ReportTable;
+import ui.control.StatTable;
 import ui.control.ToolBarStat;
 import ui.control.ToolBarTree;
 import ui.control.TreeViewFX;
@@ -46,35 +47,34 @@ public class MainFrameFX extends Application implements IViewMediator{
 	private static double WIN_HEIGTH = 400;
 	private GridPane pane;
 	private StackPane treeViewPane;
-	private StackPane statisticPane;
+	TabPane tabPane;
 	private Login loginPane;
 	private final Scene scene;
 	
 	private TreeViewFX treeView;
 	private TreeViewFX treeViewManager;
-	private ToolBarTree toolbarUser;
-	private ToolBarTree toolbarManager;
-	private ToolBarStat toolbarStatistic;
+	private ToolBarTree toolBarTree;
+	private ToolBarStat toolBarStat;
 	private MenuFX menuBar;
 	private VBox treeTools;
 	private VBox statTools;
-	private StatPane tableView;
-	private StatPane report;
+	private StatTable tableView;
+	private ReportTable report;
 	private boolean modeState =false;
 
 	public MainFrameFX() {
 		pane = new GridPane();
 		scene = new Scene(pane, WIN_WIDTH, WIN_HEIGTH, Color.ALICEBLUE);
 		treeViewPane = new StackPane();
-		statisticPane = new StackPane();
+		tabPane = new TabPane();
 		treeView = new TreeViewFX(this, modeState);
 		treeViewManager = new TreeViewFX(this, !modeState);;
-		toolbarUser = new ToolBarTree(this, modeState);
-		toolbarManager = new ToolBarTree(this, !modeState);
-		toolbarStatistic = new ToolBarStat(this, modeState);
+		toolBarTree = new ToolBarTree(this, modeState);
+		toolBarStat = new ToolBarStat(this, modeState);
 		treeTools = new VBox();
 		statTools = new VBox();
-		tableView = new StatPane(this);
+		tableView = new StatTable(this);
+		report = new ReportTable(this);
 		menuBar = new MenuFX(this);
 	}
 	
@@ -89,30 +89,27 @@ public class MainFrameFX extends Application implements IViewMediator{
 		treeViewPane.prefHeightProperty().bind(scene.heightProperty());
 		treeViewPane.prefWidthProperty().bind((scene.widthProperty().divide(3)));
 		
-		statisticPane.setAlignment(Pos.TOP_LEFT);
-		statisticPane.prefHeightProperty().bind(scene.heightProperty());
-		statisticPane.prefWidthProperty().bind((scene.widthProperty().multiply(2).divide(3)));
+		tabPane.prefHeightProperty().bind(scene.heightProperty());
+		tabPane.prefWidthProperty().bind((scene.widthProperty().multiply(2).divide(3)));
+        tabPane.setSide(Side.RIGHT);
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 		
 		pane.setAlignment(Pos.TOP_LEFT);
 		pane.setHgap(1);
 		pane.setVgap(1);
         pane.add(menuBar, 0, 0, 2, 1);
-        pane.add(setToolBar(treeTools, toolbarUser, modeState), 0, 1, 1, 1);
+        pane.add(setToolBar(treeTools, toolBarTree), 0, 1, 1, 1);
         pane.add(setTreeViewPane(modeState), 0, 2, 1, 1);
-        pane.add(setToolBar(statTools, toolbarStatistic, modeState), 1, 1, 1, 1);
-        pane.add(setStatisticPane(), 1, 2, 1, 1);
+        pane.add(setToolBar(statTools, toolBarStat), 1, 1, 1, 1);
+        pane.add(setStatisticPane(), 1, 2, 1, 2);
 	}
 	
 	/**
 	 * Set defaults and content for the user/manager mode of toolBar pane
 	 */
-	public Node setToolBar(VBox box, ToolBar toolbar, boolean mode){
+	public Node setToolBar(VBox box, ToolBar bar){
 		box.getChildren().clear();
-		modeState = mode;
-		if(toolbar.getClass().equals(ToolBarTree.class))
-			box.getChildren().add(modeState ? toolbarManager:toolbarUser);
-		else
-			box.getChildren().add(toolbarStatistic);
+			box.getChildren().add(bar);
 		return box; 
 	}
 
@@ -131,12 +128,15 @@ public class MainFrameFX extends Application implements IViewMediator{
 	}
 	
 	/**
-	 * Set defaults and content for the user statistic pane
+	 * Set defaults and content for the user current statistic pane
 	 */
 	public Node setStatisticPane(){
-		statisticPane.getChildren().clear();
-		statisticPane.getChildren().add(tableView);
-		return statisticPane;
+		final Tab tab1 = new Tab();
+        tab1.setText(CURRENT_STAT);
+        tab1.setContent(tableView);
+        
+        tabPane.getTabs().addAll(tab1);
+		return tabPane;
 	}
 	
 	@Override
@@ -159,17 +159,20 @@ public class MainFrameFX extends Application implements IViewMediator{
 
 	@Override
 	public void WidgetChanged(IViewColleague col, Object changes) {
-		if (col.equals(treeView)||col.equals(toolbarUser)||col.equals(toolbarManager)){
+		if (col.equals(treeView)||col.equals(toolBarTree)){
 			setTreeViewPane(modeState);
 		}
 		else if (col.equals(menuBar)){
 			this.modeState = menuBar.isModeState();
-			setToolBar(treeTools, toolbarUser, modeState);
-			setToolBar(statTools, toolbarStatistic, modeState);
+			toolBarTree.setModeState(modeState);
+			toolBarStat.setModeState(modeState);
 			setTreeViewPane(modeState);
 		}
 		else if (col.equals(report)){
-			pane.add(statisticPane, 1, 2, 1, 2);
+			Tab tab = new Tab();
+	        tab.setText(REPORT);
+	        tab.setContent((Node) changes);
+			tabPane.getTabs().add(tab);
 		}
 	}
 
@@ -191,23 +194,6 @@ public class MainFrameFX extends Application implements IViewMediator{
 	@Override
 	public UserStat getStatistic() {
 		return tableView.getStatistic();
-	}
-	
-	//TODO maybe display tab panel when loading
-	@Override
-	public void createTabPane() {
-		TabPane tabPane = new TabPane();
-        tabPane.setSide(Side.RIGHT);
-        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        final Tab tab1 = new Tab();
-        tab1.setText(CURRENT_STAT);
-        tab1.setContent(statisticPane);
-        final Tab tab2 = new Tab();
-        tab2.setText(REPORT);
-        report = new StatPane();
-        tab2.setContent(report.showReport(getUserName()));
-        tabPane.getTabs().addAll(tab1, tab2);
-        pane.add(tabPane, 1, 2, 1, 2);
 	}
 }
 	    

@@ -81,8 +81,9 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 	}
 
 	@Override
-	public void update(ActivityType activityType) {
-		this.activityTypes = activityType;
+	public void update(Object object) {
+		if(object.getClass() == ActivityType.class)
+			this.activityTypes = (ActivityType) object;
 	}
 	
 

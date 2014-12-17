@@ -23,16 +23,18 @@ import commonResources.model.ActivityType;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ToolBarTree extends ToolBar implements IViewColleague{
-	
+
 	private static final Logger log = Logger.getLogger(ToolBarTree.class);
 	private static final String ICON_PATH = "./src/main/resources/img/tree_tools/icon-";
 	private static final String FILE_EXTENSION = ".png";
+	private static final int BUTTONS_QUANTITY=6;
+	private static final int BUTTON_START_MANAGER=0;
+	private static final int BUTTON_START_USER=3;
 
 	private BorderPane view;
 	private ControllerViewMediator em;
 	private IViewMediator mainFrame;
 	private TreeView treeView;
-	private static final int n=6;
 
 	private Button[] buttons;
 	
@@ -40,41 +42,33 @@ public class ToolBarTree extends ToolBar implements IViewColleague{
 		this.mainFrame = mainFrame;
 		view = new BorderPane();
 		em = ControllerViewMediator.getInstance();
-		buttons = new Button[n];
-		if(!modeState)
-			initUserTools();
-		else
-			initManagerTools();
+		buttons = new Button[BUTTONS_QUANTITY];
+		initTools(modeState);
 	}
 	
-	public void initUserTools(){
+	public void initTools(boolean modeState){
+		int n=(modeState? BUTTON_START_MANAGER: BUTTON_START_USER);
+		this.getItems().clear();
 		try{
-			for (int i = 3; i < n; i++) {
+			for (int i = n; i < BUTTONS_QUANTITY; i++) {
 			    buttons[i] = new Button("",new ImageView(new Image(new FileInputStream(ICON_PATH + i + FILE_EXTENSION))));
 			    this.getItems().add(buttons[i]);
 			}
 		} catch (FileNotFoundException e) {
 			log.error(e.getMessage(), e);
 		}
-		buttons[3].setOnMouseClicked(event -> changeView(hideNotMine(getTreeNode().getRoot())));
-		buttons[4].setOnMouseClicked(event -> changeView(expandAll(getTreeNode().getRoot())));
-		buttons[5].setOnMouseClicked(event -> em.loadActivityTypes());
+		if(modeState){
+			buttons[0].setOnMouseClicked(event -> em.insertActivityTypeElement());
+			buttons[1].setOnMouseClicked(event -> em.editActivityTypeElement());
+			buttons[2].setOnMouseClicked(event -> em.removeActivityTypeElement());
+		}	
+			buttons[3].setOnMouseClicked(event -> changeView(hideNotMine(getTreeNode().getRoot())));
+			buttons[4].setOnMouseClicked(event -> changeView(expandAll(getTreeNode().getRoot())));
+			buttons[5].setOnMouseClicked(event -> em.loadActivityTypes());
 	}
 	
-	public void initManagerTools(){
-		try{
-			for (int i = 0; i < 3; i++) {
-			    buttons[i] = new Button("",new ImageView(new Image(new FileInputStream(ICON_PATH + i + FILE_EXTENSION))));
-			    this.getItems().add(buttons[i]);
-			}
-		} catch (FileNotFoundException e) {
-			log.error(e.getMessage(), e);
-		}
-		buttons[0].setOnMouseClicked(event -> em.insertActivityTypeElement());
-		buttons[1].setOnMouseClicked(event -> em.editActivityTypeElement());
-		buttons[2].setOnMouseClicked(event -> em.removeActivityTypeElement());
-		
-		initUserTools();
+	public void setModeState(boolean modeState) {
+		initTools(modeState);
 	}
 	
 	public TreeView getTreeNode() {

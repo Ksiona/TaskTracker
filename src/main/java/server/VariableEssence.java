@@ -2,17 +2,18 @@ package server;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -31,29 +32,34 @@ public class VariableEssence implements IVariableEssence{
 	private static final Logger log = Logger.getLogger(VariableEssence.class);
 	private static final String FILE_EXTENSION = ".bin";
 	private ActivityType activityTypes;
-	WorkerThread workerThread;
+	private WorkerThread workerThread;
 	private String userName;
 	private int role;
-	private JAXBContext jaxbContext;
-	SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+	private Unmarshaller jaxbUnmarshaller;
+	private Marshaller jaxbMarshaller;
+	DateTimeFormatter formatter;
 	
 	public VariableEssence(WorkerThread workerThread) {
 		this.workerThread = workerThread;
-		format = new SimpleDateFormat("dd.MM.yyyy");
+		formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault());
 		try {
-			jaxbContext = JAXBContext.newInstance(ActivityType.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(ActivityType.class);
+			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			jaxbMarshaller = jaxbContext.createMarshaller();
+			
 		} catch (JAXBException e) {
 			log.error(e.getMessage(), e);
 		}
 	}
+	
 	public VariableEssence(){
 	}
+	
 	@Override
 	public ActivityType getActivityTypesTree() {
-		try {
-			Unmarshaller um = jaxbContext.createUnmarshaller();
-			activityTypes = (ActivityType) um.unmarshal(new FileInputStream(STORAGE_PATH + ACTIVITY_FILE_NAME));
-		} catch (FileNotFoundException | JAXBException e) {
+		try(InputStream fis = new FileInputStream(STORAGE_PATH + ACTIVITY_FILE_NAME)) {
+			activityTypes = (ActivityType) jaxbUnmarshaller.unmarshal(fis);
+		} catch (JAXBException | IOException e) {
 			log.error(e.getMessage(), e);
 		}
 		return activityTypes;
@@ -61,12 +67,9 @@ public class VariableEssence implements IVariableEssence{
 	
 	@Override
 	public void setActivityTypesTree(ActivityType activityType) {
-		try {
-			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+		try(OutputStream outStream = new FileOutputStream(STORAGE_PATH+ACTIVITY_FILE_NAME)) {
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			OutputStream outStream = new FileOutputStream(STORAGE_PATH+ACTIVITY_FILE_NAME);
 			jaxbMarshaller.marshal(activityType, outStream);
-			outStream.close();
 		} catch (JAXBException | IOException e) {
 			log.error(e.getMessage(), e);
 		}
@@ -84,7 +87,7 @@ public class VariableEssence implements IVariableEssence{
 	}
 	@Override
 	public void setUserStat(String userName, UserStat statistic) {
-		String sDate = format.format(new Date(System.currentTimeMillis()));
+		String sDate = LocalDate.now().format(formatter);
 		File userFolder = new File(STORAGE_PATH+userName+"/");
 		if (userFolder.mkdir()) {
 			log.info(userName+" folder was created");
@@ -99,9 +102,10 @@ public class VariableEssence implements IVariableEssence{
 	}
 	
 	@Override
-	public UserStat getUserStat(String userName, Date start, Date end) {
+	public UserStat getUserStat(String userName, LocalDate start, LocalDate end) {
 		List<UserStat> statList = new ArrayList<>();
 		List<File> files = getFiles(userName, start, end);
+
 		for(File file : files)
 			try (ObjectInputStream objectInStream = new ObjectInputStream(new FileInputStream(new File(file.getAbsolutePath())));) {
 				statList.add((UserStat) objectInStream.readObject());
@@ -114,23 +118,20 @@ public class VariableEssence implements IVariableEssence{
 	private UserStat mergeStat(String userName, List<UserStat> statList) {
 		UserStat statistic = new UserStat(userName);
 		for(UserStat us:statList)
-			for(int activityTypeID:us.getActivityTypeList().keySet())
-				statistic.sumActivity(activityTypeID, us.getActivityTypeList().get(activityTypeID));
+			statistic.getActivityStatList().addAll(us.getActivityStatList());
 		return statistic;
 	}
 	
-	public List<File> getFiles(String userName, Date start, Date end){
+	public List<File> getFiles(String userName, LocalDate start, LocalDate end){
 		List<File> files = new ArrayList<>();
 		File dir = new File(STORAGE_PATH+userName+"/");
-		for(File file : dir.listFiles())
-			try {
-				if((file.getName().endsWith(FILE_EXTENSION))&& file.isFile()
-						&& format.parse(file.getName()).compareTo(start)>=0 && format.parse(file.getName()).compareTo(end)<=0){
-					files.add(file);
-				}
-			} catch (ParseException e) {
-				log.warn(e.getMessage(), e);
+		for(File file : dir.listFiles()){
+			String fileName = file.getName().replaceAll(FILE_EXTENSION, "");
+			if((file.getName().endsWith(FILE_EXTENSION))&& file.isFile()
+					&& LocalDate.parse(fileName,formatter).isAfter(start.minusDays(1)) && LocalDate.parse(fileName,formatter).isBefore(end.plusDays(1))){
+				files.add(file);
 			}
+		}
 		return files;
 	}
 }
