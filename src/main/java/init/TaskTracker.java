@@ -2,14 +2,15 @@ package init;
 
 import java.io.IOException;
 
-import client.NetClient;
-import logic.ActivityTypeProcessor;
+import org.apache.log4j.Logger;
+
 import server.ServerThread;
 import ui.mediator.ControllerViewMediator;
 import ui.view.MainFrameFX;
 
 public class TaskTracker {
 
+	private static final Logger log = Logger.getLogger(TaskTracker.class);
 	private static ServerThread srv;
 	
 	public TaskTracker() {
@@ -17,8 +18,7 @@ public class TaskTracker {
         try {
 			srv = new ServerThread();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);;
 		}
         new Thread(srv).start();
      // Start client
@@ -26,10 +26,7 @@ public class TaskTracker {
 	}
 	
 	public void initApp(){
-		NetClient.getInstance();
-		ActivityTypeProcessor.getInstance();
 		ControllerViewMediator.getInstance();
-
 		MainFrameFX.main(new String[]{});
 	}
 	

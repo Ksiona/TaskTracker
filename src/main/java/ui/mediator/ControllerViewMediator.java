@@ -13,13 +13,12 @@ import client.NetClient;
 import commonResources.model.ActivityType;
 import commonResources.model.UserStat;
 
-
 public class ControllerViewMediator implements IControllerViewMediator  {
 
+	private static final ControllerViewMediator INSTANCE = new ControllerViewMediator();
 	private static ActivityTypeProcessor tp;
 	private INetClient nc;
-	private static final ControllerViewMediator INSTANCE = new ControllerViewMediator();
-	
+
 	private ControllerViewMediator() {
 		tp = ActivityTypeProcessor.getInstance();
 		nc = NetClient.getInstance();
@@ -42,13 +41,16 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	@Override
 	public void unregister(Observer obj) {
 		nc.unregister(obj);
-		
 	}
 
 	@Override
+	public void setActivityTypesTree() {
+		nc.setActivityTypesTree(tp.getActivityTypes());
+	}
+	
+	@Override
 	public void setActivityTypesTree(ActivityType activityType) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do	
 	}
 
 	@Override
@@ -73,21 +75,18 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	}
 
 	@Override
-	public void insertActivityTypeElement() {
-		// TODO Auto-generated method stub
-		
+	public ActivityType insertActivityTypeElement(int activityTypeID) {
+		return tp.insertActivityTypeElement(activityTypeID);
 	}
 
 	@Override
 	public void editActivityTypeElement() {
-		// TODO Auto-generated method stub
-		
+		tp.editActivityTypeElement();
 	}
 
 	@Override
-	public void removeActivityTypeElement() {
-		// TODO Auto-generated method stub
-		
+	public void removeActivityTypeElement(ActivityType activityType) {
+		tp.removeActivityTypeElement(activityType);
 	}
 
 	@Override
@@ -104,6 +103,4 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	public void disconnect(String userName, UserStat statistic) {
 		nc.disconnect(userName, statistic);
 	}
-
-
 }

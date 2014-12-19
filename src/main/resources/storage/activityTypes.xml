@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<activityType activityTypeID="0" activityTypeTitle="activityType manager">
-    <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="shared" activityTypeID="1" activityTypeTitle="Don't working">
-        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="shared" activityTypeID="101000" activityTypeTitle="Dinner"/>
-        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="shared" activityTypeID="101001" activityTypeTitle="Rest"/>
-        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="shared" activityTypeID="101002" activityTypeTitle="Work is not associated with PC"/>
+<activityType activityTypeID="0" activityTypeTitle="Managed types">
+    <activityType activityTypeID="100001" activityTypeTitle="Don't working" owner="shared">
+        <activityType activityTypeID="110101" activityTypeTitle="Dinner" owner="shared"/>
+        <activityType activityTypeID="110102" activityTypeTitle="Rest" owner="shared"/>
+        <activityType activityTypeID="110103" activityTypeTitle="Work is not associated with PC" owner="shared"/>
     </activityType>
-    <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="shared" activityTypeID="2" activityTypeTitle="Program creation">
-        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="Michael" activityTypeID="201000" activityTypeTitle="Model">
-            <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="Me" activityTypeID="201001" activityTypeTitle="Listeners"/>
+    <activityType activityTypeID="200001" activityTypeTitle="Program creation" owner="shared">
+        <activityType activityTypeID="210101" activityTypeTitle="Model" owner="Michael">
+            <activityType activityTypeID="220101" activityTypeTitle="Listeners" owner="Me"/>
         </activityType>
-        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="Michael" activityTypeID="201001" activityTypeTitle="Controller"/>
-        <activityType creationDate="2014-12-02T10:13:45.796+03:00" owner="Me" activityTypeID="201002" activityTypeTitle="View"/>
+        <activityType activityTypeID="210102" activityTypeTitle="Controller" owner="Michael"/>
+        <activityType activityTypeID="210103" activityTypeTitle="View" owner="Me">
+            <activityType activityTypeID="220301" activityTypeTitle="Manager mode" owner="Me"/>
+        </activityType>
     </activityType>
 </activityType>

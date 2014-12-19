@@ -27,14 +27,18 @@ import commonResources.model.ActivityType;
 import commonResources.model.UserStat;
 
 public class VariableEssence implements IVariableEssence{
+	
+	private static final Logger log = Logger.getLogger(VariableEssence.class);
 	private static final String STORAGE_PATH = "./target/classes/storage/";
 	private static final String ACTIVITY_FILE_NAME = "activityTypes.xml";
-	private static final Logger log = Logger.getLogger(VariableEssence.class);
 	private static final String FILE_EXTENSION = ".bin";
+	private static final String NEW_FOLDER_CREATED = " folder was created";
+	private static final String SLASH = "/";
+	private static final String STATUS_STATISTIC = " statistic saved";
+	private static final String EMPTY_STRING = "";
+	
 	private ActivityType activityTypes;
 	private WorkerThread workerThread;
-	private String userName;
-	private int role;
 	private Unmarshaller jaxbUnmarshaller;
 	private Marshaller jaxbMarshaller;
 	DateTimeFormatter formatter;
@@ -46,7 +50,6 @@ public class VariableEssence implements IVariableEssence{
 			JAXBContext jaxbContext = JAXBContext.newInstance(ActivityType.class);
 			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbMarshaller = jaxbContext.createMarshaller();
-			
 		} catch (JAXBException e) {
 			log.error(e.getMessage(), e);
 		}
@@ -73,11 +76,12 @@ public class VariableEssence implements IVariableEssence{
 		} catch (JAXBException | IOException e) {
 			log.error(e.getMessage(), e);
 		}
+		// may be send a message, not changes
+		workerThread.sendAlert(activityType);
 	}
 
 	@Override
 	public boolean login(String userName) {
-		this.userName = userName;
 		return workerThread.onUserConnection(userName);
 	}
 
@@ -85,17 +89,18 @@ public class VariableEssence implements IVariableEssence{
 	public void disconnect(String userName) {
 		workerThread.onUserDisconnected(userName);
 	}
+	
 	@Override
 	public void setUserStat(String userName, UserStat statistic) {
 		String sDate = LocalDate.now().format(formatter);
-		File userFolder = new File(STORAGE_PATH+userName+"/");
+		File userFolder = new File(STORAGE_PATH+userName+SLASH);
 		if (userFolder.mkdir()) {
-			log.info(userName+" folder was created");
+			log.info(userName+NEW_FOLDER_CREATED);
 		}
 		try (ObjectOutputStream objectOutStream = new ObjectOutputStream(
-				new FileOutputStream(new File(userFolder +"/" +sDate+FILE_EXTENSION)))){		
+				new FileOutputStream(new File(userFolder +SLASH +sDate+FILE_EXTENSION)))){		
 			objectOutStream.writeObject(statistic);
-			log.info(userName+" stat saved");
+			log.info(userName+STATUS_STATISTIC);
 		}catch (IOException e) {
 			log.warn(e.getMessage(), e);
 		}
@@ -124,9 +129,9 @@ public class VariableEssence implements IVariableEssence{
 	
 	public List<File> getFiles(String userName, LocalDate start, LocalDate end){
 		List<File> files = new ArrayList<>();
-		File dir = new File(STORAGE_PATH+userName+"/");
+		File dir = new File(STORAGE_PATH+userName+SLASH);
 		for(File file : dir.listFiles()){
-			String fileName = file.getName().replaceAll(FILE_EXTENSION, "");
+			String fileName = file.getName().replaceAll(FILE_EXTENSION, EMPTY_STRING);
 			if((file.getName().endsWith(FILE_EXTENSION))&& file.isFile()
 					&& LocalDate.parse(fileName,formatter).isAfter(start.minusDays(1)) && LocalDate.parse(fileName,formatter).isBefore(end.plusDays(1))){
 				files.add(file);

@@ -4,32 +4,39 @@ import interfaces.INetClient;
 import interfaces.Observer;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Proxy;
 import java.net.Socket;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import commonResources.interfaces.IVariableEssence;
 import commonResources.model.ActivityType;
 import commonResources.model.UserStat;
 
-public class NetClient implements INetClient {
+public class NetClient implements INetClient, Runnable {
+	
+	private static final Logger log = Logger.getLogger(NetClient.class);
 	private Socket socket;
 	private IVariableEssence clientElement;	
     private List<Observer> observers;
-    ActivityType activityTypes;
-    UserStat statistic;
+    private ActivityType activityTypes;
+    private UserStat statistic;
     private static final NetClient INSTANCE = new NetClient();
+	private static ObjectInputStream inStream;
 
 	public NetClient() {
 		this.observers=new ArrayList<>();
-        // Создаём прокси
+
 		try {
 			socket = new Socket("localhost", 6284);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
+        // Создаём прокси
 		ClientProxy p = new ClientProxy();
 		p.socket = socket;
 
@@ -43,10 +50,16 @@ public class NetClient implements INetClient {
 		return INSTANCE;
 	}
     
-	public static void print(ActivityType activityType){
-		System.out.println(activityType);
-		for (ActivityType t: activityType.getActivityType())
-			print(t);
+	@Override
+	public void run() {
+		try {
+			inStream = new ObjectInputStream(socket.getInputStream());
+			while (true){	
+				inStream.read();	
+			}
+		} catch (IOException e) {
+			
+		}
 	}
 
 	@Override
@@ -87,7 +100,6 @@ public class NetClient implements INetClient {
 	@Override
 	public void unregister(Observer obj) {
 		observers.remove(obj);
-		
 	}
 
 	@Override
@@ -105,6 +117,5 @@ public class NetClient implements INetClient {
 	@Override
 	public void setCurrentActivityElement(int activityID) {
 		// TODO Auto-generated method stub
-		
 	}
 } 

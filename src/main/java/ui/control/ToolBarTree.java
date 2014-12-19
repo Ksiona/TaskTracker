@@ -58,13 +58,16 @@ public class ToolBarTree extends ToolBar implements IViewColleague{
 			log.error(e.getMessage(), e);
 		}
 		if(modeState){
-			buttons[0].setOnMouseClicked(event -> em.insertActivityTypeElement());
+			//em.insertActivityTypeElement(0) insert category
+			buttons[0].setOnMouseClicked(event -> em.insertActivityTypeElement(0));
 			buttons[1].setOnMouseClicked(event -> em.editActivityTypeElement());
-			buttons[2].setOnMouseClicked(event -> em.removeActivityTypeElement());
+			buttons[2].setOnMouseClicked(event -> em.removeActivityTypeElement(
+					((ActivityType)((TreeItem)(getTreeNode().getSelectionModel().getSelectedItem())).getValue())));
 		}	
 			buttons[3].setOnMouseClicked(event -> changeView(hideNotMine(getTreeNode().getRoot())));
 			buttons[4].setOnMouseClicked(event -> changeView(expandAll(getTreeNode().getRoot())));
-			buttons[5].setOnMouseClicked(event -> em.loadActivityTypes());
+			//buttons[5].setOnMouseClicked(event -> em.loadActivityTypes());
+			buttons[5].setOnMouseClicked(event -> em.setActivityTypesTree());
 	}
 	
 	public void setModeState(boolean modeState) {

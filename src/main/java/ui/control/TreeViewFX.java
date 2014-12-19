@@ -25,7 +25,9 @@ import ui.mediator.ControllerViewMediator;
 
 public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 	
-	private static final String NEW_ACTIVITY_TYPE = "New activityType";
+	private static final String NEW_ACTIVITY_TYPE = "Create";
+	private static final String REMOVE_ACTIVITY_TYPE = "Delete";
+	private static final String EMPTY_STRING = "";
 	private IViewMediator mainFrame;
 	private IControllerViewMediator em;
 	private TreeItem<ActivityType> treeRoot;
@@ -62,7 +64,6 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 						mainFrame.setStatisticPaneElement(newVal);
 				}catch (NullPointerException |IndexOutOfBoundsException e){
 				}
-				
 			}
 		});
 		return this;
@@ -74,8 +75,7 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 			@Override
 			public void changed(ObservableValue<? extends TreeItem<ActivityType>> observable,
 					TreeItem<ActivityType> oldVal, TreeItem<ActivityType> newVal) {
-						mainFrame.setStatisticPaneElement(newVal);
-						// TODO inform the controller about the selected activityType changes
+						mainFrame.setStatisticPaneElement(treeRoot);
 			}
 		});
 		
@@ -95,12 +95,29 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 		private ContextMenu addMenu = new ContextMenu();
 		 
 		public TextFieldTreeCellImpl() {
+			setMenuCreate();
+			setMenuRemove();
+		}
+
+		private void setMenuCreate() {
 			MenuItem addMenuItem = new MenuItem(NEW_ACTIVITY_TYPE);
 			addMenu.getItems().add(addMenuItem);
 			addMenuItem.setOnAction(new EventHandler() {
 				public void handle(Event t) {
-					TreeItem<ActivityType> newActivityType = insertActivityType();
+					TreeItem<ActivityType> newActivityType = insertActivityType(getTreeItem().getValue().getActivityTypeID());
+					System.out.println(getTreeItem().getValue().getActivityTypeID());
 					getTreeItem().getChildren().add(newActivityType);
+				}
+			});
+		}
+		
+		private void setMenuRemove() {
+			MenuItem removeMenuItem = new MenuItem(REMOVE_ACTIVITY_TYPE);
+			addMenu.getItems().add(removeMenuItem);
+			removeMenuItem.setOnAction(new EventHandler() {
+				public void handle(Event t) {
+					getTreeItem().getParent().getChildren().remove(getTreeItem());
+					em.removeActivityTypeElement(getTreeItem().getValue());
 				}
 			});
 		}
@@ -159,20 +176,18 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 		}
 		 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? EMPTY_STRING : getItem().toString();
 		}
 	}
 	
 	private ActivityType editActivityType(String text) {
-		// TODO inform the controller about the activityType changes
 		ActivityType activityType = ((TreeItem<ActivityType>) this.getSelectionModel().getSelectedItem()).getValue();
 		activityType.setActivityTypeTitle(text);
 		return activityType;
 	}
 	
-	private TreeItem<ActivityType> insertActivityType() {
-		// TODO inform the controller about the activityType changes
-		TreeItem<ActivityType> newActivityType = new TreeItem<ActivityType>(new ActivityType(NEW_ACTIVITY_TYPE, 1));
+	private TreeItem<ActivityType> insertActivityType(int parentID) {
+		TreeItem<ActivityType> newActivityType = new TreeItem<ActivityType>(em.insertActivityTypeElement(parentID));
 		return newActivityType;
 	}
 
