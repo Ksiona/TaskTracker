@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <activityType activityTypeID="0" activityTypeTitle="Managed types">
-    <activityType activityTypeID="100001" activityTypeTitle="Don't working" owner="shared">
+    <activityType activityTypeID="100001" activityTypeTitle="Not working" owner="shared">
         <activityType activityTypeID="110101" activityTypeTitle="Dinner" owner="shared"/>
         <activityType activityTypeID="110102" activityTypeTitle="Rest" owner="shared"/>
         <activityType activityTypeID="110103" activityTypeTitle="Work is not associated with PC" owner="shared"/>
     </activityType>
-    <activityType activityTypeID="200001" activityTypeTitle="Program creation" owner="shared">
-        <activityType activityTypeID="210101" activityTypeTitle="Model" owner="Michael">
-            <activityType activityTypeID="220101" activityTypeTitle="Listeners" owner="Me"/>
-        </activityType>
-        <activityType activityTypeID="210102" activityTypeTitle="Controller" owner="Michael"/>
-        <activityType activityTypeID="210103" activityTypeTitle="View" owner="Me">
-            <activityType activityTypeID="220301" activityTypeTitle="Manager mode" owner="Me"/>
-        </activityType>
+    <activityType activityTypeID="200001" activityTypeTitle="Preparation stage" owner="shared">
+        <activityType activityTypeID="210102" activityTypeTitle="Analysis of technical specifications" owner="Michael"/>
+        <activityType activityTypeID="210102" activityTypeTitle="Description of components" owner="shared"/>
+        <activityType activityTypeID="210103" activityTypeTitle="Modeling" owner="shared"/>
+        <activityType activityTypeID="210104" activityTypeTitle="Distribution of tasks" owner="shared"/>
     </activityType>
+    <activityType activityTypeID="300001" activityTypeTitle="Data model" owner="Michael"/>
+    <activityType activityTypeID="400001" activityTypeTitle="Controller" owner="Me"/>
+    <activityType activityTypeID="500001" activityTypeTitle="View" owner="Me"/>
+    <activityType activityTypeID="600001" activityTypeTitle="Component assembly" owner="shared"/>
 </activityType>

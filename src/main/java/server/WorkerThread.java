@@ -90,7 +90,6 @@ public class WorkerThread implements Runnable{
 	 * вызывает добавление пользователя в список рассылки
 	 * @param userName - имя, передаваемое клиентом 
 	 * @return true - пользователь есть в списке сервера и зарегистрирован в списке рассылки, false - нет
-	 * @exception IOException при ошибке записи в сокет, запись лога
 	 */
     public boolean onUserConnection(String userName) {
     	isAccepted = false;
@@ -110,12 +109,12 @@ public class WorkerThread implements Runnable{
 		return isAccepted;
     }
 	 
-	/**
-	 * Отключение пользователя
-	 * Метод вызывает удаление пользователя из списка рассылки и закрывает сокет
-	 * @exception IOException при ошибке записи в сокет, запись лога
-	 */
-	public void onUserDisconnected(String userName) {
+    /**
+     * Отключение пользователя
+     * Метод вызывает удаление пользователя из списка рассылки и закрывает сокет
+     * @exception IOException при ошибке записи в сокет, запись лога
+     */
+    public void onUserDisconnected(String userName) {
 		isConnected = false;
 		log.info(USER_DISCONNECTED + userName);
 		server.unregister(this, userName);
@@ -125,27 +124,5 @@ public class WorkerThread implements Runnable{
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 		}		
-	}
-
-	/**
-	 * Послать сообщение, если оно существует
-	 * @exception IOException при ошибке записи в сокет, запись лога
-	 */
-	public void send(Object alert) {
-    	if (alert!=null){
-    		try {
-				oos.writeObject(alert);
-	    		oos.flush();
-			} catch (IOException e) {
-				log.error(e.getMessage(), e);
-			}
-    	}
-	}
-
-	/**
-	 * Метод инициирует рассылку сообщения
-	 */
-	public void sendAlert(Object alert) {
-		server.alertSender(this, alert);
 	}
 }

@@ -1,17 +1,23 @@
 package ui.control;
 
-import commonResources.model.UserStat;
-import ui.mediator.ControllerViewMediator;
 import interfaces.IViewColleague;
 import interfaces.IViewMediator;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.MenuItemBuilder;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import ui.mediator.ControllerViewMediator;
+
+import commonResources.model.UserStat;
 
 public class MenuFX extends MenuBar implements IViewColleague{
+	
 	private static final String MENU_HELP = "Help";
 	private static final String MENU_MODE = "Mode";
 	private static final String MENU_FILE = "File";
@@ -20,42 +26,56 @@ public class MenuFX extends MenuBar implements IViewColleague{
 	private static final String SUBMENU_USER = "User";
 	private static final String SUBMENU_MANAGER = "Manager";
 	private static final String SUBMENU_EXIT = "Exit";
-	private static final String SUPPRESS_DEPRECATION = "deprecation";
 	private IViewMediator mainFrame;
 	private ControllerViewMediator em;
 	private boolean modeState;
+	private Timeline timeline;
 	
 	public MenuFX(IViewMediator mainFrame) {
 		this.mainFrame = mainFrame;
 		em = ControllerViewMediator.getInstance();
 		initMenu();
+		treeViewSync();
+	}
+	
+	private void treeViewSync() {
+		timeline = new Timeline();
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.setAutoReverse(false);
+        EventHandler<ActionEvent> onTimer = (event -> em.loadActivityTypes());
+        Duration duration = Duration.minutes(5);
+        KeyFrame keyFrame = new KeyFrame(duration, onTimer);
+
+        timeline.getKeyFrames().add(keyFrame);
+        timeline.play();
+	}
+	
+	public MenuItem createMenuItem(String title, EventHandler<ActionEvent> event){
+		MenuItem newItem = new MenuItem();
+		newItem.setText(title);
+		newItem.setOnAction(event);
+		return newItem;	
+	}
+	
+	public Menu createMenu(String title, MenuItem ... items){
+		Menu newMenu = new Menu();
+		newMenu.setText(title);
+		newMenu.getItems().addAll(items);
+		return newMenu;	
 	}
 
-	@SuppressWarnings(SUPPRESS_DEPRECATION)
-	public void initMenu(){       
-        MenuItem menu101 = MenuItemBuilder.create().text(SUBMENU_EXIT).build();
-        menu101.setOnAction(event -> systemExit()); 
+	public void initMenu(){    
+		MenuItem menu101 = createMenuItem(SUBMENU_EXIT, event -> systemExit());
+		MenuItem menu201 = createMenuItem(SUBMENU_MANAGER, event -> setModeState(true)); 
+        MenuItem menu202 = createMenuItem(SUBMENU_USER, event -> setModeState(false));   
+        MenuItem menu301 = createMenuItem(SUBMENU_CONTENT, event -> getHelp());
+        menu301.setAccelerator(KeyCombination.keyCombination("F1"));  
+        MenuItem menu302 = createMenuItem(SUBMENU_ABOUT,event -> getDescription() );
         
-		MenuItem menu201 = MenuItemBuilder.create().text(SUBMENU_MANAGER).build();
-        menu201.setOnAction(event -> setModeState(true));        
-        MenuItem menu202 = MenuItemBuilder.create().text(SUBMENU_USER).build();
-        menu202.setOnAction(event -> setModeState(false));        
-        
-        MenuItem menu401 = MenuItemBuilder.create().text(SUBMENU_CONTENT).accelerator(KeyCombination.keyCombination("F1")).build();
-        menu401.setOnAction(event -> getHelp());        
-        MenuItem menu402 = MenuItemBuilder.create().text(SUBMENU_ABOUT).build();
-        menu402.setOnAction(event -> getDescription()); 
-        
-        // Options menu
-        Menu menu1 = new Menu();
-        menu1.setText(MENU_FILE);
-        menu1.getItems().addAll(menu101);
-        Menu menu2 = new Menu();
-        menu2.setText(MENU_MODE);
-        menu2.getItems().addAll(menu201,menu202);
-        Menu menu3 = new Menu();
-        menu3.setText(MENU_HELP);
-        menu3.getItems().addAll(menu401, menu402);
+        Menu menu1 = createMenu(MENU_FILE, menu101);
+        Menu menu2 = createMenu(MENU_MODE, menu201, menu202);
+        Menu menu3 = createMenu(MENU_HELP, menu301, menu302);
+
         this.getMenus().addAll(menu1,menu2,menu3);
 	}
 	
@@ -80,6 +100,10 @@ public class MenuFX extends MenuBar implements IViewColleague{
 
 	public void setModeState(boolean modeState) {
 		this.modeState = modeState;
+		if(modeState){
+			timeline.stop();
+		}else
+			timeline.play();
 		changed(this);
 	}
 

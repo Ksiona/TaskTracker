@@ -1,6 +1,5 @@
 package ui.control;
 
-import commonResources.model.ActivityType;
 import interfaces.IControllerViewMediator;
 import interfaces.IViewColleague;
 import interfaces.IViewMediator;
@@ -20,6 +19,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
 import ui.mediator.ControllerViewMediator;
+import commonResources.model.ActivityType;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 
@@ -32,6 +32,8 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 	private IControllerViewMediator em;
 	private TreeItem<ActivityType> treeRoot;
 	private boolean modeState;
+	private TreeItem<ActivityType> selected;
+	boolean isAvailable=false;
 
 	public TreeViewFX(IViewMediator mainFrame, boolean mode) {
 		this.mainFrame = mainFrame;
@@ -43,12 +45,11 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 		else
 			initManagerMode();
 	}
-	
+
 	/**
 	 * An implementation of the TreeView control displaying an expandable tree pane
 	 * node.
 	 */
-	
 	public Node initUserMode(){
 		this.setShowRoot(false);
 		this.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<ActivityType>>() {
@@ -59,9 +60,10 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 				try{
 					if(!(newVal.getValue().getOwner().equalsIgnoreCase(mainFrame.getUserName())||newVal.getValue().getOwner().equalsIgnoreCase("shared"))){
 						getSelectionModel().clearAndSelect(getRow(oldVal));
-					}
-					else
+					}else{
 						mainFrame.setStatisticPaneElement(newVal);
+						selected = newVal;
+					}
 				}catch (NullPointerException |IndexOutOfBoundsException e){
 				}
 			}
@@ -93,6 +95,7 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 
 		private TextField textField;
 		private ContextMenu addMenu = new ContextMenu();
+		private TreeItem<ActivityType> newActivityType;
 		 
 		public TextFieldTreeCellImpl() {
 			setMenuCreate();
@@ -104,9 +107,16 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 			addMenu.getItems().add(addMenuItem);
 			addMenuItem.setOnAction(new EventHandler() {
 				public void handle(Event t) {
-					TreeItem<ActivityType> newActivityType = insertActivityType(getTreeItem().getValue().getActivityTypeID());
-					System.out.println(getTreeItem().getValue().getActivityTypeID());
-					getTreeItem().getChildren().add(newActivityType);
+					try{
+						insertItem(getTreeItem());
+					}catch(NullPointerException e){
+						insertItem(treeRoot);
+					}
+				}
+
+				private void insertItem(TreeItem<ActivityType> treeItem) {
+					newActivityType = insertActivityType(treeItem.getValue().getActivityTypeID());
+					treeItem.getChildren().add(newActivityType);
 				}
 			});
 		}
@@ -206,17 +216,37 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 		for(ActivityType t:((ActivityType) activityType).getActivityType())
 			buildTree(t, subItem);
 	}
+
+	public boolean checkSelected(){
+		return selected != null ? true:false;
+	}
+
+	public boolean checkAvailable(TreeItem<ActivityType> treeItem){
+		if(treeItem.getValue().getActivityTypeID() == selected.getValue().getActivityTypeID())
+			isAvailable = true;
+		for (TreeItem<ActivityType> tr:treeItem.getChildren() )
+			checkAvailable(tr);
+		return isAvailable;
+	}
 	
 	@Override
 	public void update(Object object) {
 		if(object.getClass() == ActivityType.class){
-		treeRoot = new TreeItem<ActivityType>((ActivityType) object);
-		for(ActivityType t:((ActivityType) object).getActivityType())
-			buildTree(t, treeRoot);
+			treeRoot = new TreeItem<ActivityType>((ActivityType) object);
+			for(ActivityType t:((ActivityType) object).getActivityType())
+				buildTree(t, treeRoot);
 
-		this.setRoot(treeRoot);
-		treeRoot.setExpanded(true);
-		changed(this);
+			this.setRoot(treeRoot);
+			treeRoot.setExpanded(true);
+			if(checkSelected()){
+				if(checkAvailable(treeRoot)){
+					this.getSelectionModel().select(selected);
+					isAvailable =false;
+				}
+				else
+					;//Alert message: The chosen task is no longer relevant
+			}
+			changed(this);
 		}
 	}
 }

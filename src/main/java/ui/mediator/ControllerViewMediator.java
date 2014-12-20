@@ -71,7 +71,6 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	@Override
 	public void setCurrentActivityElement(int activityTypeID) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

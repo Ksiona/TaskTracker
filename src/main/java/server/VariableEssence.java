@@ -60,10 +60,12 @@ public class VariableEssence implements IVariableEssence{
 	
 	@Override
 	public ActivityType getActivityTypesTree() {
-		try(InputStream fis = new FileInputStream(STORAGE_PATH + ACTIVITY_FILE_NAME)) {
-			activityTypes = (ActivityType) jaxbUnmarshaller.unmarshal(fis);
-		} catch (JAXBException | IOException e) {
-			log.error(e.getMessage(), e);
+		if(activityTypes == null){
+			try(InputStream fis = new FileInputStream(STORAGE_PATH + ACTIVITY_FILE_NAME)) {
+				activityTypes = (ActivityType) jaxbUnmarshaller.unmarshal(fis);
+			} catch (JAXBException | IOException e) {
+				log.error(e.getMessage(), e);
+			}
 		}
 		return activityTypes;
 	}
@@ -73,11 +75,10 @@ public class VariableEssence implements IVariableEssence{
 		try(OutputStream outStream = new FileOutputStream(STORAGE_PATH+ACTIVITY_FILE_NAME)) {
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			jaxbMarshaller.marshal(activityType, outStream);
+			activityTypes =null;
 		} catch (JAXBException | IOException e) {
 			log.error(e.getMessage(), e);
 		}
-		// may be send a message, not changes
-		workerThread.sendAlert(activityType);
 	}
 
 	@Override

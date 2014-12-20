@@ -104,24 +104,8 @@ public class ServerThread implements Runnable{
 	 */
 	boolean isRegistered(WorkerThread wt) {
 		return peers.containsValue(wt);
-	}
-		  
-	/**
-	 * Получить текущую коллекцию клиентов (для рассылки)
-	 *@return Коллекция клиентов
-	 */
-	public Collection<WorkerThread> getPeers() {
-		return peers.values();
-	}
+	}  
     
-	/**
-	 * Получить текущую коллекцию клиентов и отправить полученное сообщение всем, кроме инициатора рассылки
-	 */
-	public void alertSender(WorkerThread sender, Object alert){
-		for(WorkerThread peer:getPeers())
-			if(peer!=sender)
-				peer.send(alert);
-	}
 	/**
 	 * Отключение сервера
 	 * Дается 3 секунды на возможно незавершенные операции WorkerThread 
@@ -131,17 +115,17 @@ public class ServerThread implements Runnable{
 	 * Прерываем ServerThread
 	 */
 	public void shutdownServer(){
-    	try {
+		try {
 			Thread.sleep(3000);
 			threadPool.shutdown();
 			if (server != null && !server.isClosed())
 				server.close();
-    	} catch (IOException | InterruptedException e) {
-    			log.error(e.getMessage(), e);;
-    	}
-    	while(!threadPool.isTerminated()){
-        }
-       log.info(STATUS_STOPED);
-       Thread.currentThread().interrupt();
-    }
+		} catch (IOException | InterruptedException e) {
+			log.error(e.getMessage(), e);;
+		}
+		while(!threadPool.isTerminated()){
+		}
+		log.info(STATUS_STOPED);
+		Thread.currentThread().interrupt();
+	}
 }

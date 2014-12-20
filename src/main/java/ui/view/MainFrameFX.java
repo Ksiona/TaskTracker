@@ -47,7 +47,7 @@ public class MainFrameFX extends Application implements IViewMediator{
 	private static double WIN_HEIGTH = 400;
 	private GridPane pane;
 	private StackPane treeViewPane;
-	TabPane tabPane;
+	private TabPane tabPane;
 	private Login loginPane;
 	private final Scene scene;
 	
@@ -118,8 +118,8 @@ public class MainFrameFX extends Application implements IViewMediator{
 	 */
 	public Node setTreeViewPane(boolean mode){
 		treeViewPane.getChildren().clear();
-		treeViewPane.getChildren().add(modeState? treeViewManager:treeView);
-		treeView.getSelectionModel().getSelectedItem();
+		treeViewPane.getChildren().add(mode? treeViewManager:treeView);
+
 		return treeViewPane;
 	}
 	
@@ -151,6 +151,7 @@ public class MainFrameFX extends Application implements IViewMediator{
 		login();
 		getWindow().setOnCloseRequest(e -> menuBar.disconnect(getUserName(), getStatistic()));
 		getWindow().setOnHiding(e -> menuBar.disconnect(getUserName(), getStatistic()));
+
 	}
 
 	public static void main(String[] args) { 

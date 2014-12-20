@@ -23,7 +23,7 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 	private static final ActivityTypeProcessor INSTANCE = new ActivityTypeProcessor();
 	private static final String FILE_EXTENSION = ".bin";
 	private static final String SLASH = "/";
-	private static final String EMPTY_STRING = "";
+	private static final String NEW_TYPE_TITLE = "new task";
 	private static final String DEFAULT_OWNER = "shared";
 	private static final SimpleDateFormat FORMAT = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -76,7 +76,7 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 		int newID =0;
 		ActivityType parent = getTreeElement(parentTypeID);
 		int selfNum = parent.getActivityType().size()+1;
-		if(parentTypeID != 0){
+		if(parentTypeID != activityTypes.getActivityTypeID()){
 			int[] group = getNumGroops(parentTypeID); 
 			newID = (group[0]+1)*10000+group[2]*100 +(selfNum);
 		}else{
@@ -92,7 +92,7 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 	 * @return new {@link ActivityType}
 	 */
 	private ActivityType createElement(ActivityType parent, int newID) {
-		ActivityType newElement = new ActivityType(EMPTY_STRING, newID);
+		ActivityType newElement = new ActivityType(NEW_TYPE_TITLE, newID);
 		newElement.setOwner(DEFAULT_OWNER);
 		parent.appendChild(newElement);
 		return newElement;
