@@ -1,6 +1,8 @@
 package commonResources.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public class ActivityTypeStat implements Serializable{
@@ -55,7 +57,7 @@ public class ActivityTypeStat implements Serializable{
 	}
 
 	public double getPercent() {
-		return percent;
+		return new BigDecimal(percent).setScale(2, RoundingMode.UP).doubleValue();
 	}
 
 	public void setPercent(double percent) {

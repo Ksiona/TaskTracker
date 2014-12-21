@@ -3,6 +3,7 @@ package ui.control;
 import interfaces.IViewMediator;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +68,7 @@ public class StatTable extends TableView<ActivityTypeProgress>{
 
 			if(statList.isEmpty()){
 				statistic = new UserStat(mainFrame.getUserName());
-				statistic.setWorkStart(System.currentTimeMillis()/1000);
+				statistic.setWorkStart(LocalTime.now().toSecondOfDay());
 			}
 	
 			if(!statList.contains(itemID)){
@@ -93,6 +94,8 @@ public class StatTable extends TableView<ActivityTypeProgress>{
 	}
 
 	public UserStat getStatistic() {
+		if (statistic == null)
+			statistic = new UserStat(mainFrame.getUserName());
 		for (Thread t:threadList.keySet()){
 			ActivityTypeProgress pcm = threadList.get(t);
 			for(ActivityTypeStat asr:statistic.getActivityStatList()){
@@ -101,7 +104,7 @@ public class StatTable extends TableView<ActivityTypeProgress>{
 				}
 			}
 		}
-		statistic.setWorkEnd(System.currentTimeMillis()/1000);
+		statistic.setWorkEnd(LocalTime.now().toSecondOfDay());
 		return statistic;
 	}
 }

@@ -1,11 +1,12 @@
 package ui.control;
 
-import java.time.LocalDate;
-
 import interfaces.IControllerViewMediator;
 import interfaces.IViewColleague;
 import interfaces.IViewMediator;
 import interfaces.Observer;
+
+import java.time.LocalDate;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
@@ -15,6 +16,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.apache.log4j.Logger;
 
 import ui.mediator.ControllerViewMediator;
+
 import commonResources.model.ActivityTypeStat;
 import commonResources.model.UserStat;
 
@@ -67,12 +69,10 @@ public class ReportTable extends TableView<ActivityTypeStat> implements IViewCol
 	
 	@Override
 	public void update(Object object) {
+		this.getItems().clear();
 		if(object.getClass() == UserStat.class){
 			for(ActivityTypeStat activityStat:((UserStat) object).getActivityStatList())
 				data.add(activityStat);
-			/*for(int activityTypeID:((UserStat) object).getActivityTypeList().keySet())
-				data.add(new ActivityStatRender(
-						LocalDate.now(), activityTypeID+"", ((UserStat) object).getActivityTypeList().get(activityTypeID), 3.0));*/
 			this.setItems(data);
 			changed(this);
 		}

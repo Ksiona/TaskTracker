@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import commonResources.interfaces.IVariableEssence;
 import commonResources.model.ActivityType;
+import commonResources.model.ActivityTypeStat;
 import commonResources.model.UserStat;
 
 public class VariableEssence implements IVariableEssence{
@@ -36,12 +38,15 @@ public class VariableEssence implements IVariableEssence{
 	private static final String SLASH = "/";
 	private static final String STATUS_STATISTIC = " statistic saved";
 	private static final String EMPTY_STRING = "";
+	private static final long workDayStartTime = LocalTime.of(10, 0).toSecondOfDay();
 	
 	private ActivityType activityTypes;
 	private WorkerThread workerThread;
 	private Unmarshaller jaxbUnmarshaller;
 	private Marshaller jaxbMarshaller;
-	DateTimeFormatter formatter;
+	private DateTimeFormatter formatter;
+	private boolean isFinded;
+	private ActivityType notWorkActivityType;
 	
 	public VariableEssence(WorkerThread workerThread) {
 		this.workerThread = workerThread;
@@ -98,6 +103,16 @@ public class VariableEssence implements IVariableEssence{
 		if (userFolder.mkdir()) {
 			log.info(userName+NEW_FOLDER_CREATED);
 		}
+		File statFile = new File(userFolder +SLASH +sDate+FILE_EXTENSION);
+		if(statFile.exists()){
+			try (ObjectInputStream objectInStream = new ObjectInputStream(new FileInputStream(statFile));) {
+				UserStat existStat = (UserStat) objectInStream.readObject();
+				statistic = mergeStat(statistic, existStat);
+				statFile.delete();
+			} catch (IOException | ClassNotFoundException e) {
+				log.warn(e.getMessage(), e);
+			}
+		}
 		try (ObjectOutputStream objectOutStream = new ObjectOutputStream(
 				new FileOutputStream(new File(userFolder +SLASH +sDate+FILE_EXTENSION)))){		
 			objectOutStream.writeObject(statistic);
@@ -107,6 +122,36 @@ public class VariableEssence implements IVariableEssence{
 		}
 	}
 	
+	private UserStat mergeStat(UserStat statistic, UserStat existStat) {
+		try {
+			UserStat temp = new UserStat(statistic.getUserName());
+			for (ActivityTypeStat stat: statistic.getActivityStatList()){
+				isFinded = false;
+				for(ActivityTypeStat exist:existStat.getActivityStatList()){
+					if (stat.getActivityTypeTitle().equalsIgnoreCase(exist.getActivityTypeTitle())){
+						exist.setTimeInterval(exist.getTimeInterval()+stat.getTimeInterval());
+						isFinded  = true;
+					}
+				}
+				if(!isFinded)
+					temp.getActivityStatList().add(stat);
+			}
+			existStat.getActivityStatList().addAll(temp.getActivityStatList());
+		} finally{
+			if (notWorkActivityType ==null)
+				setNotWorkingActivity(existStat, statistic);
+			existStat.setWorkEnd(statistic.getWorkEnd());
+		}
+		return existStat;
+	}
+
+	private void setNotWorkingActivity(UserStat existStat, UserStat statistic) {
+		long notWorkActivity = (statistic.getWorkStart()-existStat.getWorkEnd())+(existStat.getWorkStart()-workDayStartTime);
+		existStat.setWorkStart(workDayStartTime);
+		notWorkActivityType = 	new ActivityType("Not working", 100001);
+		existStat.addActivity(LocalDate.now(), notWorkActivityType, notWorkActivity);
+	}
+
 	@Override
 	public UserStat getUserStat(String userName, LocalDate start, LocalDate end) {
 		List<UserStat> statList = new ArrayList<>();

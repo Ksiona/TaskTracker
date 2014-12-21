@@ -12,9 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ComboBoxBuilder;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -91,7 +89,6 @@ public class ToolBarStat extends ToolBar implements IViewColleague{
 	private void loadReport(String userName, LocalDate startDate, LocalDate endDate) {
 		if (startDate != null && endDate != null){
 			em.loadStat(userName, startDate, endDate);
-			changed(null);
 		} else{
 			//TODO Notify user about null in picker
 		}

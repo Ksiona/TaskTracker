@@ -33,6 +33,7 @@ import ui.control.StatTable;
 import ui.control.ToolBarStat;
 import ui.control.ToolBarTree;
 import ui.control.TreeViewFX;
+
 import commonResources.model.UserStat;
 
 public class MainFrameFX extends Application implements IViewMediator{
@@ -59,6 +60,7 @@ public class MainFrameFX extends Application implements IViewMediator{
 	private VBox treeTools;
 	private VBox statTools;
 	private StatTable tableView;
+	private Tab reportTab;
 	private ReportTable report;
 	private boolean modeState =false;
 
@@ -74,6 +76,7 @@ public class MainFrameFX extends Application implements IViewMediator{
 		treeTools = new VBox();
 		statTools = new VBox();
 		tableView = new StatTable(this);
+		
 		report = new ReportTable(this);
 		menuBar = new MenuFX(this);
 	}
@@ -109,7 +112,7 @@ public class MainFrameFX extends Application implements IViewMediator{
 	 */
 	public Node setToolBar(VBox box, ToolBar bar){
 		box.getChildren().clear();
-			box.getChildren().add(bar);
+		box.getChildren().add(bar);
 		return box; 
 	}
 
@@ -170,10 +173,12 @@ public class MainFrameFX extends Application implements IViewMediator{
 			setTreeViewPane(modeState);
 		}
 		else if (col.equals(report)){
-			Tab tab = new Tab();
-	        tab.setText(REPORT);
-	        tab.setContent((Node) changes);
-			tabPane.getTabs().add(tab);
+			if(reportTab == null ){
+				reportTab = new Tab();
+				reportTab.setText(REPORT);
+				tabPane.getTabs().add(reportTab);
+			}
+			reportTab.setContent((Node) changes);
 		}
 	}
 
