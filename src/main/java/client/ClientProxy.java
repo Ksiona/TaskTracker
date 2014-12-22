@@ -1,5 +1,9 @@
 package client;
 
+/**
+ * @author Shmoylova Kseniya
+ */
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.ObjectInputStream;
@@ -11,6 +15,16 @@ public class ClientProxy implements java.lang.reflect.InvocationHandler {
 
 	protected Socket socket;
    
+	/**
+	 * Method for reflect invocation of VariableEssence methods
+	 * @see java.lang.reflect.InvocationHandler
+	 * Data stream for send method name
+	 * Serial stream (Data stream wrapper) for method's arguments and obtaining object resources
+	 * @param proxy  (IVariableEssence)Proxy.newProxyInstance
+	 * @param method IVariableEssence method
+	 * @param args method arguments
+	 * @exception throwing read / write to the stream methods
+	 */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
        

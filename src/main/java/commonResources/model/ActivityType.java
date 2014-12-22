@@ -8,6 +8,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+/**
+ * @author Shmoylova Kseniya
+ * POJO for entity "Activity type"
+ * Annotated for JAXB serialization
+ */
 @XmlRootElement()
 @XmlType(propOrder={FieldNames.ACTIVITY_TYPE_NOTES, FieldNames.ACTIVITY_TYPE})
 public class ActivityType implements Serializable {

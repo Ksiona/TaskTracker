@@ -5,10 +5,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
+/**
+ * @author Shmoylova Kseniya
+ * POJO for the base component of entity "User statistic"
+ */
 public class ActivityTypeStat implements Serializable{
 	
 	/**
-	 * defaultID
+	 * default serialVersionUID
 	 */
 	private static final long serialVersionUID = 1L;
 	private LocalDate date;

@@ -64,8 +64,8 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	}
 	
 	@Override
-	public void readFileStat(File selectedFile) {
-		tp.readFileStat(selectedFile);
+	public UserStat readFileStat(File selectedFile) {
+		return tp.readFileStat(selectedFile);
 	}
 
 	@Override

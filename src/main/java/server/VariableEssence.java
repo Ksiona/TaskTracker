@@ -163,11 +163,12 @@ public class VariableEssence implements IVariableEssence{
 			} catch (ClassCastException | ClassNotFoundException | IOException e){
 				log.warn(e.getMessage(), e);
 			}
-		return mergeStat(userName,statList);
+		return combineStat(userName,statList);
 	}
 	
-	private UserStat mergeStat(String userName, List<UserStat> statList) {
+	private UserStat combineStat(String userName, List<UserStat> statList) {
 		UserStat statistic = new UserStat(userName);
+		log.info(statistic.getActivityStatList().size());
 		for(UserStat us:statList)
 			statistic.getActivityStatList().addAll(us.getActivityStatList());
 		return statistic;

@@ -5,8 +5,10 @@ import interfaces.INetClient;
 import interfaces.Observer;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,6 +19,11 @@ import client.NetClient;
 import commonResources.model.ActivityType;
 import commonResources.model.UserStat;
 
+/**
+ * @author Shmoylova Kseniya
+ * Contains methods for editing a task tree
+ * and load/save statistics on the user's device
+ */
 public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 
 	private static final Logger log = Logger.getLogger(ActivityTypeProcessor.class);
@@ -36,16 +43,20 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 		nc.register(this);
 	}
 	
+	/**
+	 * Get singleton 
+	 * @return {@link ActivityTypeProcessor#INSTANCE}
+	 */
 	public static ActivityTypeProcessor getInstance(){
 		return INSTANCE;
 	}
-
-	public static void print(ActivityType activityType){
-		System.out.println(activityType);
-		for (ActivityType t: activityType.getActivityType())
-			print(t);
-	}
 	
+	/**
+	 * Method serializing current statistic of user, creates binary file in selected directory
+	 * @param selectedDir - directory for save
+	 * @param userStat - current statistic
+	 * @exception IOException - I/O stream's error, 
+	 */
 	@Override
 	public void writeFileStat(File selectedDir, UserStat userStat) {
 		String sDate = FORMAT.format(new Date(System.currentTimeMillis()));
@@ -54,12 +65,25 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 			objectOutStream.writeObject(userStat);
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
+			// TODO Object return type, to inform the user about the result
 		}
 	}
 	
+	/**
+	 * Method for deserialize the statistic of user from selected binary file
+	 * @param selectedFile -file contains statistic
+	 * @exception IOException - I/O stream's error
+	 * @exception  ClassCastException | ClassNotFoundException - errors occurs when restoring object
+	 */
 	@Override
-	public void readFileStat(File selectedFile) {
-		// TODO Auto-generated method stub
+	public UserStat readFileStat(File selectedFile) {
+		UserStat statistic = null;
+		try (ObjectInputStream objectInStream = new ObjectInputStream(new FileInputStream(selectedFile));) {
+			statistic =((UserStat) objectInStream.readObject());
+		} catch (ClassCastException | ClassNotFoundException | IOException e){
+			log.warn(e.getMessage(), e);
+		}
+		return statistic;
 	}
 	
 	/**
@@ -69,7 +93,7 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 	 * @see logic.ActivityTypeProcessor#getNumGroops(int)
 	 * @see logic.ActivityTypeProcessor#createElement(ActivityType, int)
 	 * @param parentTypeID
-	 * @return activityType full tree
+	 * @return new {@link ActivityType}
 	 */
 	@Override
 	public ActivityType insertActivityTypeElement(int parentTypeID) {
@@ -86,9 +110,9 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 	}
 
 	/**
-	 * Will created new ActivityType with DEFAULT_OWNER = shared
-	 * @param parent
-	 * @param newID
+	 * Will created new ActivityType with DEFAULT_OWNER = "shared"
+	 * @param parent - ActivityType with list where the new type will inserted
+	 * @param newID - computed ID
 	 * @return new {@link ActivityType}
 	 */
 	private ActivityType createElement(ActivityType parent, int newID) {
@@ -99,9 +123,13 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 	}
 
 	/**
-	 * get 3 groups: categoryNum+level - parentNum - selfNum
-	 * @param num
-	 * @return int array with 3 elements
+	 * Method get an array, contains 3 groups: categoryNum+level - parentNum - selfNum
+	 * In this system, the calculation of the ID, there is a limit on the number of category (9 units) 
+	 * and depth of nesting (10 levels)
+	 * To empower inclusion of 4 elements in a group - store level separately from the number of category, 
+	 * then both constraints will significantly expand
+	 * @param num - number, ID of the parent element
+	 * @return array with 3 elements
 	 */
 	private int[] getNumGroops(int num) {
 		int[] array = new int[3];
@@ -117,16 +145,28 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 		return array;
 	}
 	
+	/**
+	 * Not implemented method, yet
+	 */
 	@Override
 	public void editActivityTypeElement() {
 		// TODO Auto-generated method stub
 	}
 	
+	/**
+	 * Method removes activity type from tree
+	 * @see ActivityTypeProcessor#removeTreeElement(ActivityType, ActivityType)
+	 */
 	@Override
 	public void removeActivityTypeElement(ActivityType activityType) {
 		removeTreeElement(activityTypes, activityType);
 	}
 	
+	/**
+	 * Method removes removingType from the actual tree - parentType
+	 * using a recursive traversal of the tree
+	 * @see ActivityTypeProcessor#removeTreeElement(ActivityType, ActivityType)
+	 */
 	public void removeTreeElement(ActivityType parentType, ActivityType removingType){
 		if(parentType.getActivityType().contains(removingType)){
 			parentType.getActivityType().remove(removingType);
@@ -137,22 +177,42 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 		}
 	}
 	
+	/**
+	 * Not implemented method
+	 */
 	@Override
 	public void setActivityTypesTree() {
 		// nothing to do
 	}
 
+	/**
+	 * Observer method for receiving changes
+	 * @param object - changes
+	 */
 	@Override
 	public void update(Object object) {
 		if(object.getClass() == ActivityType.class)
 			this.activityTypes = (ActivityType) object;
 	}
 
+	/**
+	 * Gets tree element by ID
+	 * @see ActivityTypeProcessor#checkID(ActivityType, int)
+	 * @param activityTypeID - the search element ID
+	 * @return the search element
+	 */
 	public ActivityType getTreeElement(int activityTypeID) {
 		ActivityType activityType = checkID(activityTypes, activityTypeID);
 		return activityType;
 	}
 	
+	/**
+	 * Method finds the element using its ID
+	 * Method use a recursive traversal of the tree
+	 * @param activityType - the current top of the hierarchy
+	 * @param activityTypeID - the search element ID
+	 * @return founded ActivityType or null
+	 */
 	public ActivityType checkID(ActivityType activityType, int activityTypeID){
 		if(activityType.getActivityTypeID()==activityTypeID){
 			find = activityType;
@@ -163,6 +223,10 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 		return find;
 	}
 
+	/**
+	 * Getter for the root of tree
+	 * @return {@link ActivityTypeProcessor#activityTypes}
+	 */
 	public ActivityType getActivityTypes() {
 		return activityTypes;
 	}

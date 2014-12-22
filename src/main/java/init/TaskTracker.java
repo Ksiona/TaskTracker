@@ -8,6 +8,10 @@ import server.ServerThread;
 import ui.mediator.ControllerViewMediator;
 import ui.view.MainFrameFX;
 
+/**
+ * @author Shmoylova Kseniya
+ * The entry point for the client side of application
+ */
 public class TaskTracker {
 
 	private static final Logger log = Logger.getLogger(TaskTracker.class);
@@ -15,7 +19,7 @@ public class TaskTracker {
 	
 	
 	public TaskTracker() {
-        // Start server
+        // Start server - will been extracted later
         try {
 			srv = new ServerThread();
 		} catch (IOException e) {

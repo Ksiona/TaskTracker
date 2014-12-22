@@ -47,7 +47,7 @@ public class ServerThread implements Runnable{
     	try (Scanner scanner = new Scanner(inputStream)){
 			while (scanner.hasNext()) {
 				String userName = scanner.next();
-				userList.add(new TrackerUser(userName, 0));
+				userList.add(new TrackerUser(userName));
 			}
 		}
 	}

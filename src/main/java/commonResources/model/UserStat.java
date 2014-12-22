@@ -5,10 +5,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Shmoylova Kseniya
+ * POJO for the entity "User statistic"
+ */
 public class UserStat implements Serializable{
 
 	/**
-	 * default Id
+	 * default serialVersionUID
 	 */
 	private static final long serialVersionUID = 1L;
 	private String userName;
@@ -41,6 +45,11 @@ public class UserStat implements Serializable{
 		return workEnd;
 	}
 
+	/**
+	 * Method sets the time the application is closed
+	 * and computes for each task, the percentage of total time.
+	 * @param workEnd - time converted into long value
+	 */
 	public void setWorkEnd(long workEnd) {
 		this.workEnd = workEnd;
 		for(ActivityTypeStat asr:activityStatList){
@@ -57,6 +66,11 @@ public class UserStat implements Serializable{
 		this.activityStatList = activityStatList;
 	}
 	
+	/**
+	 * Method sets new activityTypeStat if not in the list {@link UserStat#activityStatList} 
+	 * or sets new time interval in the opposite case
+	 * @param workEnd - time converted into long value
+	 */
 	public void addActivity(LocalDate date, ActivityType activityType, long timeInterval){
 		boolean isFinded = false;
 		for(ActivityTypeStat asr:activityStatList){

@@ -6,7 +6,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.ProgressIndicator;
 
-
 public class ActivityTypeProgress  extends Task<ObservableList<ActivityTypeProgress>>{
 	
 	//10 hour work day in seconds

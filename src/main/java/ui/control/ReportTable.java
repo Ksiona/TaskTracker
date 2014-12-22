@@ -12,17 +12,12 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-
-import org.apache.log4j.Logger;
-
 import ui.mediator.ControllerViewMediator;
-
 import commonResources.model.ActivityTypeStat;
 import commonResources.model.UserStat;
 
 public class ReportTable extends TableView<ActivityTypeStat> implements IViewColleague, Observer{
 	
-	private static final Logger log = Logger.getLogger(ReportTable.class);
 	private static final String COL_ACTIVITY = "Activity";
 	private static final String COL_DATE = "Date";
 	private static final String COL_TIME = "Worked";
@@ -31,6 +26,7 @@ public class ReportTable extends TableView<ActivityTypeStat> implements IViewCol
 	private static final String PROPERTY_TITLE = "activityTypeTitle";
 	private static final String PROPERTY_TIME = "timeInterval";
 	private static final String PROPERTY_PERCENT = "percent";
+	private static final String SUPPRESS_UNCHECKED = "unchecked";
 	private IViewMediator mainFrame;
 	private IControllerViewMediator em;
 	private ObservableList<ActivityTypeStat> data = FXCollections.observableArrayList();
@@ -42,6 +38,7 @@ public class ReportTable extends TableView<ActivityTypeStat> implements IViewCol
 		init();
 	}
 
+	@SuppressWarnings(SUPPRESS_UNCHECKED)
 	private void init() {
 	    TableColumn<ActivityTypeStat, LocalDate> dateCol = new TableColumn<>(COL_DATE);
 	    dateCol.setCellValueFactory(new PropertyValueFactory<ActivityTypeStat, LocalDate>(PROPERTY_DATE));

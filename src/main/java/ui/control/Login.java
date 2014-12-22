@@ -12,9 +12,6 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.RadialGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -84,7 +81,6 @@ public class Login extends Stage{
         			userTextField.setText("Reenter your name");
         	}
         });
-
 	}
 
 	public String getUserName() {

@@ -9,14 +9,12 @@ import java.io.FileNotFoundException;
 import java.time.LocalDate;
 
 import javafx.collections.FXCollections;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -24,6 +22,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import org.apache.log4j.Logger;
 
 import ui.mediator.ControllerViewMediator;
+
+import commonResources.model.UserStat;
 
 public class ToolBarStat extends ToolBar implements IViewColleague{
 	
@@ -35,7 +35,6 @@ public class ToolBarStat extends ToolBar implements IViewColleague{
 	private static final String EXTENSION_OPEN_DIALOG = "*.bin";
 	private static final String TITLE_DIRECTORY_CHOOSER = "Select Output Directory";
 	private static final String SYSTEM_USER_DIR = "user.dir";
-	private BorderPane view;
 	private ControllerViewMediator em;
 	private IViewMediator mainFrame;
 	private DatePicker startDatePicker;
@@ -47,7 +46,6 @@ public class ToolBarStat extends ToolBar implements IViewColleague{
 	
 	public ToolBarStat(IViewMediator mainFrame, boolean modeState)  {
 		this.mainFrame = mainFrame;
-		view = new BorderPane();
 		em = ControllerViewMediator.getInstance();
 		buttons = new Button[n];
 			initTools(modeState);
@@ -72,7 +70,6 @@ public class ToolBarStat extends ToolBar implements IViewColleague{
 		userSelector.setVisible(false);
 		userSelector.setOnAction(event -> anotherUserName = userSelector.getValue());
 
-		//TODO
 		if(modeState){
 			endDatePicker.setVisible(true);
 			userSelector.setVisible(true);
@@ -112,8 +109,8 @@ public class ToolBarStat extends ToolBar implements IViewColleague{
 				 new ExtensionFilter(EXTENSION_DESCRIPTION, EXTENSION_OPEN_DIALOG));
 		 File selectedFile = fileChooser.showOpenDialog(mainFrame.getWindow());
 		 if (selectedFile != null) {
-			em.readFileStat(selectedFile);
-			//TODO statistic window
+			UserStat statistic = em.readFileStat(selectedFile);
+			changed(statistic);
 		 }
 	}
 
@@ -125,11 +122,6 @@ public class ToolBarStat extends ToolBar implements IViewColleague{
 		if (selectedDir != null) {
 			em.writeFileStat(selectedDir, mainFrame.getStatistic());
 		}
-	}
-	
-	private void changeView(Node node) {
-		view.setCenter(node);
-		changed(view);
 	}
 
 	@Override

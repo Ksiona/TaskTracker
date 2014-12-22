@@ -33,7 +33,7 @@ import ui.control.StatTable;
 import ui.control.ToolBarStat;
 import ui.control.ToolBarTree;
 import ui.control.TreeViewFX;
-
+import commonResources.model.ActivityType;
 import commonResources.model.UserStat;
 
 public class MainFrameFX extends Application implements IViewMediator{
@@ -143,7 +143,7 @@ public class MainFrameFX extends Application implements IViewMediator{
 	}
 	
 	@Override
-	public void setStatisticPaneElement(TreeItem newVal) {
+	public void setStatisticPaneElement(TreeItem<ActivityType> newVal) {
 		tableView.addElement(newVal);
 	}
 	    
@@ -179,6 +179,9 @@ public class MainFrameFX extends Application implements IViewMediator{
 				tabPane.getTabs().add(reportTab);
 			}
 			reportTab.setContent((Node) changes);
+		}
+		else if (col.equals(toolBarStat)){
+			report.update(changes);
 		}
 	}
 
