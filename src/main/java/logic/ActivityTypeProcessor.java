@@ -176,14 +176,6 @@ public class ActivityTypeProcessor implements IActivityTypeProcessor, Observer {
 			removeTreeElement(t, removingType);
 		}
 	}
-	
-	/**
-	 * Not implemented method
-	 */
-	@Override
-	public void setActivityTypesTree() {
-		// nothing to do
-	}
 
 	/**
 	 * Observer method for receiving changes

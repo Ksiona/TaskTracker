@@ -12,5 +12,5 @@ public interface IActivityTypeProcessor {
 	public ActivityType insertActivityTypeElement(int activityTypeID);
 	public void editActivityTypeElement();
 	public void removeActivityTypeElement(ActivityType activityType);
-	public void setActivityTypesTree();
+	default void setActivityTypesTree(){};
 }

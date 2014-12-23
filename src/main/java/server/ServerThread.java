@@ -20,6 +20,12 @@ import org.apache.log4j.Logger;
 
 import commonResources.model.TrackerUser;
 
+/**
+ * @author Shmoylova Kseniya
+ * Class is responsible for initialization of server socket, 
+ * listening port and invocation threads processing data
+ *
+ */
 public class ServerThread implements Runnable{
 	
     private static final Logger log = Logger.getLogger(ServerThread.class);
@@ -30,7 +36,7 @@ public class ServerThread implements Runnable{
     private ServerSocket server;
     private Socket socket;
     protected Collection<TrackerUser> userList;
-    private ExecutorService threadPool = Executors.newFixedThreadPool(4);
+    private ExecutorService threadPool;
 	private ConcurrentMap<String, WorkerThread> peers;
 
     private InputStreamReader inputStream;
@@ -38,10 +44,15 @@ public class ServerThread implements Runnable{
     public ServerThread() throws IOException {
     	server = new ServerSocket(6284);
     	peers = new ConcurrentHashMap<String, WorkerThread>(4);
+    	threadPool = Executors.newFixedThreadPool(4);
     	inputStream = new InputStreamReader(new FileInputStream(new File(FILE_PATH)),CHARSET);
     	loadUserList(); 
 	}
     
+    /**
+     * Method fills the {@link ServerThread#userList} from a file resource
+     * @resource userlist.txt
+     */
     private void loadUserList() {
     	userList =  new HashSet<TrackerUser>();
     	try (Scanner scanner = new Scanner(inputStream)){
@@ -53,12 +64,12 @@ public class ServerThread implements Runnable{
 	}
 
     /**
-    * Главный цикл ожидания коннекта и обработки поступивших вызовов
-    * Заполняется кэш методов класса VariableEssence
-    * Слушаем порт, если поступил вызов, создаем экземпляр  WorkerThread, которому передаем ссылку на себя,
-    * на поступивший вызов и кэш методов.
-    * запускаем созданный экземпляр при помощи ExecutorService, добавляя его в пул
-    * @exception Exception ловим все что не обработано внутри, останавливаем сервер
+     * The main loop waiting for a connection and processing of incoming calls
+     * Fills the methods cache of class VariableEssence
+     * Listens to the port, if it receive a call, create an instance WorkerThread, which pass a reference to itself, the incoming call and cache methods.
+     * launch an instance is created using an ExecutorService, adding it to the pool
+     * @see WorkerThread
+     * @exception Exception catch all that is not processed inside, stop the server
     */
 	@Override
     public void run() {
@@ -78,41 +89,41 @@ public class ServerThread implements Runnable{
 	}
 	
 	/**
-	 * Метод вызывается из экземпляра WorkerThread, при подключении, когда становится известно имя пользователя.
-	 * Метод проверяет нет ли пользователя с таким именем в списке, если нет - регистрирует его.
-	 * @param worker - WorkerThread, пытающийся зарегистрироваться
-	 * @return Если имя не дублировано - true, иначе - false
+	 * Method is called from an instance WorkerThread, during connection, when it is known the name of the user.
+	 * This method checks whether there is no user with this name in the list, if not - register it.
+	 * @param worker WorkerThread trying to register
+	 * @return If the name is not duplicated is true, otherwise - false
 	 */
 	public boolean tryRegister(WorkerThread worker, String userName) {
 		return peers.putIfAbsent(userName, worker) == null;
 	}
 	
-	 /**
-	* Метод вызывается из экземпляра  WorkerThread, когда пользователь отключается. 
-	* Метод снимает пользователя с регистрации в списке активных пользователей.
-	* @param wt -  WorkerThread, желающий снять регистрацию
-	* @return - true - успешная разрегистрация, false - в списках не было.
-	*/
+	/**
+	 * Method is called from an instance WorkerThread when the user disconnects.
+	 * The method removes a user registration in the list of connected users.
+	 * @param wt - WorkerThread who wants to unregister
+	 * @return - true - successful logout, false - list not contains.
+	 */
 	boolean unregister(WorkerThread wt, String userName) {
 		return peers.remove(userName) == wt;
 	}
 	
-	/**
-	 * Проверяется, зарегистрирован ли данный WorkerThread в списке клиентов
-	 * @param wt - проверяемый WorkerThread
-	 * @return true - в списке, false - нет.
+	/** 	
+	 * Checks if this WorkerThread in the connected list
+	 * @param wt - checked WorkerThread
+	 * @return true -it is, false - not.
 	 */
 	boolean isRegistered(WorkerThread wt) {
 		return peers.containsValue(wt);
 	}  
     
 	/**
-	 * Отключение сервера
-	 * Дается 3 секунды на возможно незавершенные операции WorkerThread 
-	 * Пробуем свернуть пул
-	 * Если серверный сокет не закрыт, пробуем закрыть его
-	 * Ждем пока ExecutorService не выкинет флаг isTerminated
-	 * Прерываем ServerThread
+	 * Shutdown the server
+	 * Given 3 seconds to possible pending WorkerThread
+	 * Try to terminate pool
+	 * If the server socket is not closed, trying to close it
+	 * Wait until the ExecutorService will not throw the flag isTerminated
+	 * Interrupts ServerThread
 	 */
 	public void shutdownServer(){
 		try {

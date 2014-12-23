@@ -8,10 +8,10 @@ import commonResources.model.UserStat;
 public interface INetClient {
 	public void register(Observer obj);
 	public void unregister(Observer obj);
-	public void notifyObservers(Object object);
+	default void notifyObservers(Object object){};
 	
 	public void loadActivityTypes();
-	public void setActivityTypesTree(ActivityType activityType);
+	default void setActivityTypesTree(ActivityType activityType){};
 	public void setCurrentActivityElement(int activityTypeID);
 	public void loadStat(String userName, LocalDate firstDate,LocalDate lastDate);
 	public boolean login(String userName);

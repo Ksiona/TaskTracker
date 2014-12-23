@@ -47,11 +47,6 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	public void setActivityTypesTree() {
 		nc.setActivityTypesTree(tp.getActivityTypes());
 	}
-	
-	@Override
-	public void setActivityTypesTree(ActivityType activityType) {
-		// Nothing to do	
-	}
 
 	@Override
 	public void loadStat(String userName, LocalDate firstDate, LocalDate lastDate) {
@@ -86,11 +81,6 @@ public class ControllerViewMediator implements IControllerViewMediator  {
 	@Override
 	public void removeActivityTypeElement(ActivityType activityType) {
 		tp.removeActivityTypeElement(activityType);
-	}
-
-	@Override
-	public void notifyObservers(Object object) {
-		// Nothing to do		
 	}
 
 	@Override

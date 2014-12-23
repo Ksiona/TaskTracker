@@ -28,6 +28,24 @@ import commonResources.model.ActivityType;
 import commonResources.model.ActivityTypeStat;
 import commonResources.model.UserStat;
 
+/**
+ * @author Shmoylova Kseniya
+ * Class defines the entity managing the retrieval, editing and storage of linked data
+ * 
+ * Retrieving:
+ * 	statistic - deserialize the statistic of user from the binary files corresponding to the passed in query date interval:
+ * 	activity type tree - deserialize tree from the XML representation using JAXB
+ * 
+ * Editing:
+ * 	statistic is fully processed on the server side 
+ * 	activity types tree server receives already formed
+ * 
+ * Storage:
+ * 	statistics assumes the following structure:
+ * folder with name = userName, containing files with names equal to the date save statistics,
+ * files are binary;
+ * 	activity types - XML
+ */
 public class VariableEssence implements IVariableEssence{
 	
 	private static final Logger log = Logger.getLogger(VariableEssence.class);
@@ -63,6 +81,11 @@ public class VariableEssence implements IVariableEssence{
 	public VariableEssence(){
 	}
 	
+	/**
+	 * Method to restore the object from XML representation
+	 * @exception IOException - output stream errors
+	 * @exception JAXBException - unmarshaling errors
+	 */
 	@Override
 	public ActivityType getActivityTypesTree() {
 		if(activityTypes == null){
@@ -75,6 +98,11 @@ public class VariableEssence implements IVariableEssence{
 		return activityTypes;
 	}
 	
+	/**
+	 * Method to write the XML representation of the activity types tree
+	 * @exception IOException - output stream errors
+	 * @exception JAXBException - marshaling errors
+	 */
 	@Override
 	public void setActivityTypesTree(ActivityType activityType) {
 		try(OutputStream outStream = new FileOutputStream(STORAGE_PATH+ACTIVITY_FILE_NAME)) {
@@ -86,16 +114,35 @@ public class VariableEssence implements IVariableEssence{
 		}
 	}
 
+	/**
+	 * Method to validate user registration
+	 * @see WorkerThread#onUserConnection(String)
+	 * @return true - user validate, false - otherwise
+	 */
 	@Override
 	public boolean login(String userName) {
 		return workerThread.onUserConnection(userName);
 	}
-
+	
+	/**
+	 * Method allows disconnected from the server in normal mode
+	 * @see WorkerThread#onUserDisconnected(String)
+	 */
 	@Override
 	public void disconnect(String userName) {
 		workerThread.onUserDisconnected(userName);
 	}
 	
+	/**
+	 * Method checks existence statistic for this user on current date
+	 * If exist, load it and merge with current 
+	 * @see VariableEssence#mergeStat(UserStat, UserStat)
+	 * otherwise - serialize statistics sent
+	 * @param userName - registered name of user
+	 * @param statistic - current statistics sent to save
+	 * @exception IOException I/O streams errors - logfile only
+	 * @exception ClassNotFoundException - deserialize errors
+	 */
 	@Override
 	public void setUserStat(String userName, UserStat statistic) {
 		String sDate = LocalDate.now().format(formatter);
@@ -122,6 +169,13 @@ public class VariableEssence implements IVariableEssence{
 		}
 	}
 	
+	/**
+	 * Method merges exist statistic with current 
+	 * @param statistic - current statistics sent to save
+	 * @param existStat - exist statistics from file
+	 * @return - updated statistics, with new workEnd time
+	 * @see VariableEssence#setNotWorkingActivity(UserStat, UserStat)
+	 */
 	private UserStat mergeStat(UserStat statistic, UserStat existStat) {
 		try {
 			UserStat temp = new UserStat(statistic.getUserName());
@@ -145,6 +199,11 @@ public class VariableEssence implements IVariableEssence{
 		return existStat;
 	}
 
+	/**
+	 * Method sum not working activity interval with time application was not active
+	 * @param statistic - current statistics sent to save
+	 * @param existStat - exist statistics from file
+	 */
 	private void setNotWorkingActivity(UserStat existStat, UserStat statistic) {
 		long notWorkActivity = (statistic.getWorkStart()-existStat.getWorkEnd())+(existStat.getWorkStart()-workDayStartTime);
 		existStat.setWorkStart(workDayStartTime);
@@ -152,6 +211,17 @@ public class VariableEssence implements IVariableEssence{
 		existStat.addActivity(LocalDate.now(), notWorkActivityType, notWorkActivity);
 	}
 
+	/**
+	 * Method combines the statistics of multiple files, corresponding to the date interval
+	 * 
+	 * @see VariableEssence#getFiles(String, LocalDate, LocalDate)
+	 * @see VariableEssence#combineStat(String, List)
+	 * 
+	 * @param userName - registered name of user
+	 * @param start - start date of the requested interval
+	 * @param end - last date of the requested interval
+	 * @return UserStat object
+	 */
 	@Override
 	public UserStat getUserStat(String userName, LocalDate start, LocalDate end) {
 		List<UserStat> statList = new ArrayList<>();
@@ -166,6 +236,12 @@ public class VariableEssence implements IVariableEssence{
 		return combineStat(userName,statList);
 	}
 	
+	/**
+	 * Method just sum {@link ActivityTypeStat} objects in the result UserStat object 
+	 * @param userName - the user for which statistics were kept
+	 * @param statList - the list of loaded statistical units
+	 * @return UserStat object
+	 */
 	private UserStat combineStat(String userName, List<UserStat> statList) {
 		UserStat statistic = new UserStat(userName);
 		log.info(statistic.getActivityStatList().size());
@@ -174,6 +250,9 @@ public class VariableEssence implements IVariableEssence{
 		return statistic;
 	}
 	
+	/**
+	 * @return list of files for loading statistic
+	 */
 	public List<File> getFiles(String userName, LocalDate start, LocalDate end){
 		List<File> files = new ArrayList<>();
 		File dir = new File(STORAGE_PATH+userName+SLASH);

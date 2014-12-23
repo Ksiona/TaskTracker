@@ -1,8 +1,15 @@
 package ui.view;
 
 	/**
-	 * Frame:0 - main window 
 	 * @author Shmoylova Kseniya
+	 * An implementation of the main application window with controls:
+	 * {@link ui.control.TreeViewFX}
+	 * {@link ui.control.StatTable}
+	 * {@link ui.control.ReportTable}
+	 * {@link ui.control.MenuFX}
+	 * {@link ui.control.ToolBarTree}
+	 * {@link ui.control.ToolBarStat}
+	 * {@link ui.control.Login}
 	 */
 
 import interfaces.IViewColleague;
@@ -18,6 +25,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableView;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.GridPane;
@@ -81,7 +89,11 @@ public class MainFrameFX extends Application implements IViewMediator{
 		menuBar = new MenuFX(this);
 	}
 	
-	private void init(Stage primaryStage) throws FileNotFoundException {
+	/**
+	 * Assembly relative location of components
+	 * @param primaryStage stage 
+	 */
+	private void init(Stage primaryStage) {
 		primaryStage.setTitle(APPLICATION_TITLE);
 		primaryStage.setResizable(false);
 		primaryStage.setX((SRC_WIDTH - WIN_WIDTH) / 2);
@@ -122,10 +134,12 @@ public class MainFrameFX extends Application implements IViewMediator{
 	public Node setTreeViewPane(boolean mode){
 		treeViewPane.getChildren().clear();
 		treeViewPane.getChildren().add(mode? treeViewManager:treeView);
-
 		return treeViewPane;
 	}
 	
+	/**
+	 * Method gets TreeViewFX object according the mode state
+	 */
 	public TreeViewFX getTreeView() {
 		return modeState? treeViewManager:treeView;
 	}
@@ -142,6 +156,10 @@ public class MainFrameFX extends Application implements IViewMediator{
 		return tabPane;
 	}
 	
+	/**
+	 * Places the selected type of activity in the current statistics table
+	 * @see ui.control.StatTable#addElement(TreeItem)
+	 */
 	@Override
 	public void setStatisticPaneElement(TreeItem<ActivityType> newVal) {
 		tableView.addElement(newVal);
@@ -154,13 +172,20 @@ public class MainFrameFX extends Application implements IViewMediator{
 		login();
 		getWindow().setOnCloseRequest(e -> menuBar.disconnect(getUserName(), getStatistic()));
 		getWindow().setOnHiding(e -> menuBar.disconnect(getUserName(), getStatistic()));
-
 	}
 
+	/**
+	 * The entry point of JavaFX GUI
+	 * @param args
+	 */
 	public static void main(String[] args) { 
 		launch(args); 
 	}
 
+	/**
+	 * Method receives as parameters a reference to the changed element and directly changes
+	 * and changes view according that parameters
+	 */
 	@Override
 	public void WidgetChanged(IViewColleague col, Object changes) {
 		if (col.equals(treeView)||col.equals(toolBarTree)){
@@ -190,16 +215,27 @@ public class MainFrameFX extends Application implements IViewMediator{
 		return loginPane.getUserName();
 	}
 
+	/**
+	 * Set defaults and content for the login stage
+	 * @see ui.control.Login
+	 */
 	@Override
 	public void login() {
 		loginPane = new Login();
 	}
 
+	/**
+	 * Gets link for scene's parent window
+	 */
 	@Override
 	public Window getWindow() {
 		return scene.getWindow();
 	}
 
+	/**
+	 * Gets current statistic on close event of application
+	 * @see ui.control.StatTable#getStatistic()
+	 */
 	@Override
 	public UserStat getStatistic() {
 		return tableView.getStatistic();

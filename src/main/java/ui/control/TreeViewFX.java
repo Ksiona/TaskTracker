@@ -21,8 +21,12 @@ import javafx.util.Callback;
 import ui.mediator.ControllerViewMediator;
 import commonResources.model.ActivityType;
 
+/**
+ * @author Shmoylova Kseniya
+ * An implementation of the TreeView control displaying an expandable tree root node.
+ * 
+ */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-
 public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 	
 	private static final String NEW_ACTIVITY_TYPE = "Create";
@@ -46,10 +50,6 @@ public class TreeViewFX extends TreeView implements IViewColleague, Observer{
 			initManagerMode();
 	}
 
-	/**
-	 * An implementation of the TreeView control displaying an expandable tree pane
-	 * node.
-	 */
 	public Node initUserMode(){
 		this.setShowRoot(false);
 		this.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<ActivityType>>() {

@@ -17,6 +17,10 @@ import org.apache.log4j.Logger;
 
 import commonResources.model.TrackerUser;
 
+/**
+ * @author Shmoylova Kseniya
+ * Define runnable object, processing incoming calls
+ */
 public class WorkerThread implements Runnable{
  
 	private static final Logger log = Logger.getLogger(WorkerThread.class);
@@ -35,11 +39,18 @@ public class WorkerThread implements Runnable{
 	private Lock lock = new ReentrantLock();
 	private boolean isAccepted;
      
+	/**
+	 * Instantiate {@link VariableEssence} object whose methods will be called
+	 * Defines in and out streams associated with socket
+	 * @param socket
+	 * @param methods
+	 * @param server
+	 */
     public WorkerThread(Socket socket, HashMap<String, Method> methods, ServerThread server){
         this.socket=socket;
         this.methods= methods;
         this.server =server;
-        obj = new VariableEssence(this); // физический объект, чьи методы будем вызывать
+        obj = new VariableEssence(this);
 	   	try {
 			is = new DataInputStream(socket.getInputStream());
 			ous = new DataOutputStream(socket.getOutputStream());
@@ -48,6 +59,15 @@ public class WorkerThread implements Runnable{
 		}
     }
 
+    /**
+     * The main loop processing incoming calls while user is connected
+     * Reads method name from stream, then checks arguments quantity
+     * If method is need arguments, fills args vector from ObjectInputStream
+     * Result of method invocation writing by ObjectOutputStream
+     * @exception IOException - stream errors
+     * @exception IllegalAccessException | IllegalArgumentException| InvocationTargetException | ClassNotFoundException - reflect invocation errors
+     * On exception logFile and invoke {@link WorkerThread#onUserDisconnected(String)}
+     */
 	@Override
     public void run() {
 		try {
@@ -84,12 +104,12 @@ public class WorkerThread implements Runnable{
     }
 	
 	/**
-	 * Подключение пользователя
-	 * Синхронизирован доступ к списку пользователей
-	 * Метод проверяет наличие переданного имени в списке пользователей
-	 * вызывает добавление пользователя в список рассылки
-	 * @param userName - имя, передаваемое клиентом 
-	 * @return true - пользователь есть в списке сервера и зарегистрирован в списке рассылки, false - нет
+	 * User connection
+	 * Synchronized access to the user list
+	 * Method checks the passed name in the user list
+	 * causes the user is added to the list of connected if the validation - success
+	 * @param userName is the name passed by the client
+	 * @return true if the user is in the list of server and registered in the list of connected, false otherwise
 	 */
     public boolean onUserConnection(String userName) {
     	isAccepted = false;
@@ -110,9 +130,9 @@ public class WorkerThread implements Runnable{
     }
 	 
     /**
-     * Отключение пользователя
-     * Метод вызывает удаление пользователя из списка рассылки и закрывает сокет
-     * @exception IOException при ошибке записи в сокет, запись лога
+     * User disconnection
+     * Method deletes a user from the list of connected and closes the socket
+     * @exception IOException if a write error in the socket, the logfile
      */
     public void onUserDisconnected(String userName) {
 		isConnected = false;
